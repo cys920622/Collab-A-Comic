@@ -12,3 +12,5 @@ Todo:
   - **Wed beore 5PM** - review teammates' user stories
 - [ ] paper prototypes
   - **Thur 3pm** - *meeting* - complete paper prototypes
+
+![Calvin and Hobbes](/images/calvinandhobbes.jpg)

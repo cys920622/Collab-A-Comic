@@ -4,7 +4,7 @@ The team:
 * Daniel Choi (https://github.com/cys920622)
 * Ford Atwater (https://github.com/fordat)
 * Oscar Iu (https://github.com/oscariu17)
-* Lansi Chu ( )
+* Lansi Chu (https://github.com/lansichu)
 
 Todo:
 - [ ] user stories & product backlog

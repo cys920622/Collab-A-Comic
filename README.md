@@ -7,10 +7,11 @@ The team:
 * Lansi Chu (https://github.com/lansichu)
 
 Todo:
-- [ ] user stories & product backlog
-  - **End of Tues** - finish user stories
-  - **Wed beore 5PM** - review teammates' user stories
-- [ ] paper prototypes
-  - **Thur 3pm** - *meeting* - complete paper prototypes
+- populate Sprint 1 milestone with *tasks* from its user stories
+  - make sure to label each with issue number of the user story the task belongs to
+- high-level OO software design / UML diagram
+- finalize prototype to help with UI design
+
+last updated Jan 28, 2016
 
 ![Calvin and Hobbes](/images/calvinandhobbes.jpg)

@@ -1,5 +1,13 @@
+// Passport tutorial: http://bit.ly/1TNXvgG
 extends layout
 
 block content
   h1= title
   p Welcome to #{title}
+  if (!user)
+    a(href="/login") Login
+    br
+    a(href="/register") Register
+  if (user)
+    p Welcome back, #{user.username}!
+    a(href="/logout") Logout

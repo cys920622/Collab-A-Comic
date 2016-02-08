@@ -5,7 +5,7 @@ var PUserSchema = require('mongoose').model('PowerUsers');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   PUserSchema.create({
-    name: 'Daniel Doe',
+    name: 'Jason Doe',
     age: 3
   });
 

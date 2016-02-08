@@ -7,11 +7,8 @@ The team:
 * Lansi Chu (https://github.com/lansichu)
 
 Todo:
-- populate Sprint 1 milestone with *tasks* from its user stories
-  - make sure to label each with issue number of the user story the task belongs to
-- high-level OO software design / UML diagram
-- finalize prototype to help with UI design
+- finish Sprint 1!
 
-last updated Jan 28, 2016
+last updated Feb 8, 2016
 
 ![Calvin and Hobbes](/images/calvinandhobbes.jpg)

@@ -4,5 +4,16 @@
 extends layout
 
 block content
-    .container
-        h1 Profile page for
+    h1= title
+    p Welcome back, #{user.firstName}!
+    if (!user)
+        a(href="/login") Login
+        br
+        a(href="/register") Register
+    if (user)
+        p Your information:
+        li First name: #{user.firstName}
+        li Last name: #{user.lastName}
+        li Email: #{user.email}
+        li Contributor: #{user.isContributor}
+        a(href="/logout") Logout

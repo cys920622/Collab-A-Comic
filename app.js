@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
+var expressSession = require('express-session');
 var LocalStrategy = require('passport-local').Strategy;
 
 var routes = require('./routes/index');
@@ -24,9 +25,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // TODO: express-session not incl.
+
+
+app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 app.use('/', routes);
 app.use('/users', users);
@@ -34,7 +40,7 @@ app.use('/users', users);
 // Passport tutorial: http://bit.ly/1TNXvgG
 // Passport configuration
 var Account = require('./models/account');
-passport.use(new LocalStrategy(Account.authenticate()));
+passport.use('local-login', new LocalStrategy(Account.authenticate()));
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
@@ -78,6 +84,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

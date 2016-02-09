@@ -1,0 +1,26 @@
+//
+   Created by danielchoi on 2016-02-08.
+link(href='/css/profile.css', rel='stylesheet')
+
+extends layout
+
+block content
+    h1= title
+    p Welcome back, #{user.firstName}!
+    if (!user)
+        a(href="/login") Login
+        br
+        a(href="/register") Register
+    if (user)
+        p Your information:
+        li First name: #{user.firstName}
+        li Last name: #{user.lastName}
+        li Email: #{user.email}
+    if (user.isContributor)
+        li#badge [Contributor]
+        p List of contributions:
+            li 1
+            li 2
+    else
+        li#badge [Viewer]
+    a(href="/logout") Logout

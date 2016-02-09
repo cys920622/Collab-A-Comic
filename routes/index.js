@@ -5,13 +5,17 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function (req, res) {
-  res.render('index', { user : req.user });
+  res.render('index', {
+    user : req.user,
+    title : "Collab-a-Comic!"});
 });
 
+/* GET registration page. */
 router.get('/register', function(req, res) {
   res.render('register', { });
 });
 
+/* POST registration fields. */
 router.post('/register', function(req, res) {
   Account.register(new Account({
     firstName : req.body.firstName,
@@ -23,27 +27,46 @@ router.post('/register', function(req, res) {
     if (err) {
       return res.render('register', { account : account });
     }
-    passport.authenticate('local')(req, res, function () {
+    passport.authenticate('local-login')(req, res, function () {
       res.redirect('/login');
     });
   });
 });
 
+/* GET login page. */
 router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });
 
-router.post('/login', passport.authenticate('local'), function (req, res) {
-  res.redirect('/');
+/* POST login form */
+router.post('/login', passport.authenticate('local-login', {
+  successRedirect: '/profile',
+  failureRedirect: '/login'
+}));
+
+/* GET profile page. */
+// https://scotch.io/tutorials/easy-node-authentication-setup-and-local
+router.get('/profile', isLoggedIn, function (req, res) {
+  res.render('profile', {user: req.user});
 });
+
+// Middleware for checking login state
+function isLoggedIn(req, res, next) {
+  console.log("Cheking if logged in");
+  if (req.user) {
+    console.log("User is logged in");
+    next();
+  } else {
+    console.log("User is NOT logged in");
+    res.redirect('/login');
+  }
+}
 
 router.get('/logout', function (req, res) {
   req.logout();
   res.redirect('/');
 });
 
-router.get('/ping', function (req, res) {
-  res.status(200).send("pong!");
-});
+
 
 module.exports = router;

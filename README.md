@@ -1,5 +1,7 @@
 # Collab-A-Comic
 ##### A collaborative comic strip writing platform
+Hosted at: https://collab-a-comic.herokuapp.com
+
 The team:
 * Daniel Choi (https://github.com/cys920622)
 * Ford Atwater (https://github.com/fordat)

@@ -8,14 +8,12 @@ var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 
 var Account = new Schema({
+    firstName: String,
+    lastName: String,
+    email: String,
     username: String,
-    password: String
-    // TODO: add additional fields to user
-    //,
-    //firstName: String,
-    //lastName: String,
-    //email: String,
-    //isContributor: Boolean
+    password: String,
+    isContributor: Boolean
 });
 
 Account.plugin(passportLocalMongoose);

@@ -12,27 +12,15 @@ block content
         br
 
         body
-            form(method="post",enctype="multipart/form-data",action="/")
+            form(action='demo_post_enctype.asp', method='post', enctype='multipart/form-data')
                 p
                     input(type="text",name="title",placeholder="title")
-        //        p
-        //            input(type="file",name="upl")
-        //        p
-        //            input(type="submit")
-        //
-        //button(onclick='myFunction()') Submit
-        //    p#demo
-        //    script.
-        //        function myFunction() {
-        //            var x;
-        //            if (confirm("Confirm upload?") == true) {
-        //                x = img(src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
-        //                ;
-        //            } else {
-        //                x = "Upload unsuccessful";
-        //            }
-        //            document.getElementById("demo").innerHTML = x;
-        //        }
+                p
+                    input(type="file",name="upl")
+                p
+                    input(type="submit", value="Submit")
+        //form(method="post",enctype="multipart/form-data",action="/")
+
 
         //a(href='')
 

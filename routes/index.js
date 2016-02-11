@@ -36,6 +36,19 @@ router.post('/register', function(req, res) {
 /* GET login page. */
 
 // new stuff, load page
+router.post('/loadimage', function(req, res) {
+
+  Image.image(new Image({
+    //name : req.body.name;
+    title: req.body.title,
+    image: {
+      creationDate: req.body.creationDate,
+      name: req.body.name,
+      filename: req.body.filename
+    }
+  }))
+});
+
 router.get('/loadImage', function(req, res) {
   res.render('loadImage')
 });

@@ -5,8 +5,10 @@ body {
     font:10px "Lucida Grande", "Lucida Sans", "Trebuchet MS", verdana, sans-serif;
 }
 #floatMenu {
+    background-color:black;
     position:fixed;
-    top:0px;
+    top:0;
+    width:100%;
 }
 #floatMenu ul {
     margin-bottom:10px;

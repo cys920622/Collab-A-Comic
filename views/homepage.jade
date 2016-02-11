@@ -4,20 +4,16 @@ link(href='/css/homepage.css', rel='stylesheet')
 
 extends layout
 
+style.
+    h1{font-size: 22px; color: #000080;}
+
 block content
     include toolbar
     h1= title
-    p Welcome #{user.firstName}
+    p Homepage
     if (!user)
         a(href="/login") Login
         br
         a(href="/register") Register
     if (user)
-        p
-        //a(href="/profile") Profile
-        //br
-        //a(href='/')
-            button.btn.btn-primary(type="button") My Profile
-        //a(href="/logout") Logout
-        //a(href='/')
-            button.btn.btn-primary(type="button") Logout
+        p Welcome #{user.firstName}

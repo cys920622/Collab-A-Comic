@@ -34,15 +34,30 @@ router.post('/register', function(req, res) {
 });
 
 /* GET login page. */
+
+// new stuff, load page
+router.get('/loadImage', function(req, res) {
+  res.render('loadImage')
+});
+
+router.get('/toolbar', function(req, res) {
+  res.render('toolbar')
+});
+
 router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });
 
 /* POST login form */
 router.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/profile',
+  successRedirect: '/homepage',
   failureRedirect: '/login'
 }));
+
+/* GET homepage. */
+router.get('/homepage', isLoggedIn, function (req, res) {
+  res.render('homepage', {user: req.user});
+});
 
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
@@ -52,7 +67,7 @@ router.get('/profile', isLoggedIn, function (req, res) {
 
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
-  console.log("Cheking if logged in");
+  console.log("Checking if logged in");
   if (req.user) {
     console.log("User is logged in");
     next();

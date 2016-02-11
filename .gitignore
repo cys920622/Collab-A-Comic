@@ -98,3 +98,6 @@ Temporary Items
 sftp-config.json
 ### VisualStudioCode template
 .settings
+
+# Ignore npm-debug
+/npm-debug.log/

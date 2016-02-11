@@ -6,13 +6,14 @@ extends layout
 
 block content
     h1= title
-    p Welcome back, #{user.firstName}!
+    p #{user.firstName}'s Profile
     if (!user)
         a(href="/login") Login
         br
         a(href="/register") Register
     if (user)
         p Your information:
+        li Username: #{user.username}
         li First name: #{user.firstName}
         li Last name: #{user.lastName}
         li Email: #{user.email}
@@ -21,6 +22,8 @@ block content
         p List of contributions:
             li 1
             li 2
+        //p # of contributions: //count number of contributions from lines above
+        p # of subscribers: 0
     else
         li#badge [Viewer]
     a(href="/logout") Logout

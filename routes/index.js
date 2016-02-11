@@ -34,7 +34,7 @@ router.post('/register', function(req, res) {
       sendConfEmail(req, res);
     }
     passport.authenticate('local-login')(req, res, function () {
-      res.redirect('/login');
+      res.redirect('/homepage');
     });
   });
 });

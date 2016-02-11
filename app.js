@@ -37,6 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
+
 // Passport tutorial: http://bit.ly/1TNXvgG
 // Passport configuration
 var Account = require('./models/account');
@@ -45,7 +46,7 @@ passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
 // mongodb setup
-var uristring = 'mongodb://user:cpsc310@ds059145.mongolab.com:59145/cpsc310'
+var uristring = 'mongodb://user:cpsc310@ds059145.mongolab.com:59145/cpsc310';
 mongoose.connect(uristring, function (err, res) {
   if (err) {
     console.log ('ERROR connecting to: ' + uristring + '. ' + err);
@@ -84,5 +85,13 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+// nu
+var multer = require('multer');
+
+
+
+
+app.use(multer({dest: './uploads'}).single('panel'));
+//
 
 module.exports = app;

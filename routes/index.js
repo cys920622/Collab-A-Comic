@@ -34,6 +34,16 @@ router.post('/register', function(req, res) {
 });
 
 /* GET login page. */
+
+// new stuff, load page
+router.get('/loadImage', function(req, res) {
+  res.render('loadImage')
+});
+
+router.get('/toolbar', function(req, res) {
+  res.render('toolbar')
+});
+
 router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });

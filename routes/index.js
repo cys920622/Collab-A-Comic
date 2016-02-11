@@ -153,7 +153,7 @@ router.get('/uploadtest', function(req, res){
   res.render('uploadtest');
 });
 
-router.post('/uploadtest', multer({ dest: './uploads/'}).single('upl'), function(req,res){
+router.post('/uploadtest', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
   console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
@@ -166,10 +166,14 @@ router.post('/uploadtest', multer({ dest: './uploads/'}).single('upl'), function
    mimetype: 'image/png',
    destination: './uploads/',
    filename: '436ec561793aa4dc475a88e84776b1b9',
-   path: 'uploads/436ec561793aa4dc475a88e84776b1b9',
+   path: 'public/uploads/436ec561793aa4dc475a88e84776b1b9',
    size: 277056 }
    */
-  res.status(204).end();
+
+  //res.status(204).end();
+  res.render('uploadtest', {
+    image: req.file.filename
+  });
 });
 
 

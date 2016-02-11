@@ -3,16 +3,20 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 	
 
-var imageSchema = Schema({
-	title: {type: String, required: true},
-	contributor: {type: String, required: true},
+var imageSchema = new Schema({
+	title: String,
+	//contributor: String,
 	image: {
-		creationDate: {type: Date},
-		name: {type: String},
-		filename: {type: String}
+		creationDate: Date,
+		name: String,
+		filename: String
 	}
 })
 
-var modelName = "Image";
-var collectionName = "Images"
-mongoose.model(modelName, imageSchema, collectionName);
+//var modelName = "imageSchema";
+var collectionName;
+collectionName = "imageSchema";
+
+//mongoose.model('images', imageSchema, collectionName);
+
+module.exports = mongoose.model('images', imageSchema);

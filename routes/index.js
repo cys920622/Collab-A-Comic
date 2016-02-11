@@ -2,6 +2,10 @@ var express = require('express');
 var passport = require('passport');
 var Account = require('../models/account');
 var router = express.Router();
+var postmark = require("postmark");
+
+// Postmark config
+var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
 
 /* GET home page. */
 router.get('/', function (req, res) {
@@ -26,6 +30,8 @@ router.post('/register', function(req, res) {
   }), req.body.password, function(err, account) {
     if (err) {
       return res.render('register', { account : account });
+    } else {
+      sendConfEmail(req, res);
     }
     passport.authenticate('local-login')(req, res, function () {
       res.redirect('/login');
@@ -50,9 +56,14 @@ router.get('/login', function (req, res) {
 
 /* POST login form */
 router.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/profile',
+  successRedirect: '/homepage',
   failureRedirect: '/login'
 }));
+
+/* GET homepage. */
+router.get('/homepage', isLoggedIn, function (req, res) {
+  res.render('homepage', {user: req.user});
+});
 
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
@@ -62,7 +73,7 @@ router.get('/profile', isLoggedIn, function (req, res) {
 
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
-  console.log("Cheking if logged in");
+  console.log("Checking if logged in");
   if (req.user) {
     console.log("User is logged in");
     next();
@@ -73,10 +84,38 @@ function isLoggedIn(req, res, next) {
 }
 
 router.get('/logout', function (req, res) {
+  console.log("LOGGING OUT");
   req.logout();
-  res.redirect('/');
+  res.render('index', {
+    title: "Collab-a-Comic!",
+    message: "You've been logged out!" });
 });
 
+// Testing postmark
+function sendConfEmail(req, res) {
+  var textbody;
+  if (req.body.isContributor == 1) {
+    console.log(req.body.isContributor);
+    textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
+    "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
+  } else {
+    console.log(req.body.isContributor);
+    textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
+        "comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
+  }
+  client.sendEmail({
+    "From": "daniel.choi@alumni.ubc.ca",
+    "To": req.body.email,
+    "Subject": "Collab-A-Comic registration",
+    "TextBody": textbody
+  }, function(error, success) {
+    if(error) {
+      console.error("Unable to send via postmark: " + error.message);
+      return;
+    }
+    console.info("Postmark sent email to: " + req.body.email);
+  });
+}
 
 
 module.exports = router;

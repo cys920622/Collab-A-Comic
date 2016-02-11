@@ -23,9 +23,8 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('secret'));
 // TODO: express-session not incl.
-
 
 app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());

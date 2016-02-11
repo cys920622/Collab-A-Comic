@@ -4,6 +4,8 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  div#note #{message}
+
   if (!user)
     a(href="/login") Login
     br

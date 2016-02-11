@@ -5,11 +5,7 @@ body {
     font:10px "Lucida Grande", "Lucida Sans", "Trebuchet MS", verdana, sans-serif;
 }
 #floatMenu {
-    position:absolute;
-    top:150px;
-    left:50%;
-    margin-left:235px;
-    width:200px;
+    position:fixed;
 }
 #floatMenu ul {
     margin-bottom:20px;
@@ -18,7 +14,7 @@ body {
     display:block;
     border:1px solid #999;
     background-color:#222;
-    border-left:6px solid #999;
+    /*border-left:6px solid #999;*/
     text-decoration:none;
     color:#ccc;
     padding:5px 5px 5px 25px;
@@ -31,4 +27,11 @@ body {
 }
 #floatMenu ul.menu3 li a:hover {
     border-color:#f09;
+}
+#floatMenu ul.menu4 li a:hover {
+    border-color:#fff;
+}
+#floatMenu ul.menu1, ul.menu2, ul.menu3, ul.menu4 {
+    display:inline-block;
+    width:200px;
 }

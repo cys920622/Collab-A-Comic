@@ -78,8 +78,11 @@ function isLoggedIn(req, res, next) {
 }
 
 router.get('/logout', function (req, res) {
+  console.log("LOGGING OUT");
   req.logout();
-  res.redirect('/');
+  res.render('index', {
+    title: "Collab-a-Comic!",
+    message: "You've been logged out!" });
 });
 
 

@@ -3,12 +3,47 @@
 
 extends layout
 
+link(rel='stylesheet', href='css/newcomic.css')
+
 block content
     include toolbar
     .container
-        h1 upload!!!!!
+        h1 Create New Comic!
         br
-        form(action="...", method="post", enctype="multipart/form-data")
-            input(type="file", name="displayImage")
+
+        body
+            form(method="post",enctype="multipart/form-data",action="/")
+                p
+                    input(type="text",name="title",placeholder="title")
+        //        p
+        //            input(type="file",name="upl")
+        //        p
+        //            input(type="submit")
+        //
+        //button(onclick='myFunction()') Submit
+        //    p#demo
+        //    script.
+        //        function myFunction() {
+        //            var x;
+        //            if (confirm("Confirm upload?") == true) {
+        //                x = img(src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
+        //                ;
+        //            } else {
+        //                x = "Upload unsuccessful";
+        //            }
+        //            document.getElementById("demo").innerHTML = x;
+        //        }
+
+        //a(href='')
+
+        script.
+            function changeImage() {
+                var img = document.getElementById("image");
+                img.src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg";
+                return false;
+            }
+        img#image(src = "http://www.i2symbol.com/images/symbols/geometry/white_square_u25A1_icon_256x256.png")
+        button(onclick = 'changeImage()') Upload
+
 
 | action="/postPanels" enctype="multipart/form-data" method="post">

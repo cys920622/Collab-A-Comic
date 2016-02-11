@@ -48,11 +48,28 @@ router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });
 
+//Tried to use to display error message
+//passport.use('login', new LocalStrategy(
+//    function(username, password, done) {
+//      modeloUsuario.findOne({ username: username, password: password }, function(err, user) {
+//        if (err) { return done(err); }
+//        if (!user) {
+//          return done(null, false, {message: 'Incorrect username.'}); //Error to show
+//        }
+//        return done(null, user);
+//      });
+//    }
+//));
+
 /* POST login form */
 router.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/homepage',
-  failureRedirect: '/login'
-}));
+      successRedirect: '/homepage',
+      failureRedirect: '/login',
+      //failureFlash: 'login fail'
+    }
+
+
+));
 
 /* GET homepage. */
 router.get('/homepage', isLoggedIn, function (req, res) {

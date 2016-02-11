@@ -5,7 +5,7 @@ body {
     font:10px "Lucida Grande", "Lucida Sans", "Trebuchet MS", verdana, sans-serif;
 }
 #floatMenu {
-    background-color:black;
+    background-color:deeppink;
     position:fixed;
     top:0;
     width:100%;
@@ -16,7 +16,7 @@ body {
 #floatMenu ul li a {
     display:block;
     border:1px solid #999;
-    background-color:#006600;
+    background-color:#FF9900;
     /*border-left:6px solid #999;*/
     text-decoration:none;
     color:#ccc;

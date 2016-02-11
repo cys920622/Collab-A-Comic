@@ -1,6 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var Account = require('../models/account');
+var Comic = require('../models/comic');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
@@ -150,11 +151,13 @@ function sendConfEmail(req, res) {
 
 // Multer file upload
 router.get('/uploadtest', function(req, res){
-  res.render('uploadtest');
+  res.render('uploadtest', {
+    image: 'images/calvinandhobbes.jpg'
+  });
 });
 
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-router.post('/uploadtest', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
+router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
   console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
@@ -173,8 +176,14 @@ router.post('/uploadtest', multer({ dest: './public/uploads/'}).single('upl'), f
 
   //res.status(204).end();
   res.render('uploadtest', {
-    image: req.file.filename
+    image: 'uploads/'+req.file.filename
   });
+  new Comic({
+    title: req.body.title,
+    originalname: req.file.originalname,
+    filename: req.file.filename,
+    path: req.file.path
+  }).save();
 });
 
 

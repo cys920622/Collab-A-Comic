@@ -1,11 +1,15 @@
 //
    Created by danielchoi on 2016-02-11.
    https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-html
-    head
-        title
+extends layout
+
+link(rel='stylesheet', href='css/newcomic.css')
+
+block content
+    include toolbar
+    h1 Create New Comic!
     body
-        form(method="post",enctype="multipart/form-data",action="/uploadtest")
+        form(method="post",enctype="multipart/form-data",action="/uploadimg")
             p
                 input(type="text",name="title",placeholder="title")
             p
@@ -13,4 +17,4 @@ html
             p
                 input(type="submit")
             p
-                img(src='uploads/'+image)
+                img(src=image)

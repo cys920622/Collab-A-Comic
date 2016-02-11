@@ -1,0 +1,14 @@
+//
+   Created by danielchoi on 2016-02-11.
+   https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
+html
+    head
+        title
+    body
+        form(method="post",enctype="multipart/form-data",action="/uploadtest")
+            p
+                input(type="text",name="title",placeholder="title")
+            p
+                input(type="file",name="upl")
+            p
+                input(type="submit")

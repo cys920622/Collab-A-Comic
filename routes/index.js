@@ -3,6 +3,7 @@ var passport = require('passport');
 var Account = require('../models/account');
 var router = express.Router();
 var postmark = require("postmark");
+var multer = require('multer');
 
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -146,6 +147,30 @@ function sendConfEmail(req, res) {
     console.info("Postmark sent email to: " + req.body.email);
   });
 }
+
+// Multer file upload
+router.get('/uploadtest', function(req, res){
+  res.render('uploadtest');
+});
+
+router.post('/uploadtest', multer({ dest: './uploads/'}).single('upl'), function(req,res){
+  console.log(req.body); //form fields
+  /* example output:
+   { title: 'abc' }
+   */
+  console.log(req.file); //form files
+  /* example output:
+   { fieldname: 'upl',
+   originalname: 'grumpy.png',
+   encoding: '7bit',
+   mimetype: 'image/png',
+   destination: './uploads/',
+   filename: '436ec561793aa4dc475a88e84776b1b9',
+   path: 'uploads/436ec561793aa4dc475a88e84776b1b9',
+   size: 277056 }
+   */
+  res.status(204).end();
+});
 
 
 module.exports = router;

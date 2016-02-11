@@ -153,6 +153,7 @@ router.get('/uploadtest', function(req, res){
   res.render('uploadtest');
 });
 
+// https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
 router.post('/uploadtest', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
   console.log(req.body); //form fields
   /* example output:

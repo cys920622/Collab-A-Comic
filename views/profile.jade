@@ -5,6 +5,9 @@ link(href='/css/profile.css', rel='stylesheet')
 extends layout
 
 block content
+    a(href="profile#") Home
+        a(href="user") User Information
+            a(href="logout") Logout
     h1= title
     p Welcome back, #{user.firstName}!
     if (!user)
@@ -12,7 +15,10 @@ block content
         br
         a(href="/register") Register
     if (user)
+
         p Your information:
+        // Display user image - will be fixed for now.
+        img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
         li First name: #{user.firstName}
         li Last name: #{user.lastName}
         li Email: #{user.email}
@@ -21,6 +27,20 @@ block content
         p List of contributions:
             li 1
             li 2
+        p List of subscribers:
+            li 1
+            li 2
+    if (user)
+        form(name="add-estimation", method="post")
+            div.input
+                span.label Title
+                input(type="text", name="title")
+            div.input
+                span.label Description
+                textarea(name="description", cols="40", rows="5")
+            div.actions
+                input(type="submit", value="add")
+
     else
         li#badge [Viewer]
     a(href="/logout") Logout

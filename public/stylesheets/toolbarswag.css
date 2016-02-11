@@ -6,9 +6,10 @@ body {
 }
 #floatMenu {
     position:fixed;
+    top:0px;
 }
 #floatMenu ul {
-    margin-bottom:20px;
+    margin-bottom:10px;
 }
 #floatMenu ul li a {
     display:block;

@@ -7,6 +7,7 @@ var Comic = new Schema({
     title: String,
     originalname: String,
     filename: String,
+    link: String,
     path: String
 });
 module.exports = mongoose.model('Comic', Comic);

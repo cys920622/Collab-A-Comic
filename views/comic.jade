@@ -1,3 +1,12 @@
 //
    Created by danielchoi on 2016-02-08.
 
+extends layout
+
+link(rel='stylesheet', href='css/newcomic.css')
+
+block content
+    include toolbar
+    h1 #{title}
+    body
+        img(src=image)

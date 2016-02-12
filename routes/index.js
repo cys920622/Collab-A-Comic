@@ -173,17 +173,25 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
    path: 'public/uploads/436ec561793aa4dc475a88e84776b1b9',
    size: 277056 }
    */
-
-  //res.status(204).end();
-  res.render('uploadtest', {
-    image: 'uploads/'+req.file.filename
-  });
-  new Comic({
+  var comic = new Comic({
     title: req.body.title,
     originalname: req.file.originalname,
     filename: req.file.filename,
+    link: 'uploads/'+req.file.filename,
     path: req.file.path
-  }).save();
+  });
+  comic.save(getcomic(comic));
+  function getcomic(c) {
+    res.render('comic', {
+      title: c.title,
+      image: c.link
+    });
+  }
+});
+
+router.get('/comic', function(req, res){
+  res.render('comic', {
+  })
 });
 
 

@@ -43,8 +43,10 @@ block content
                     }
 
         p List of contributions:
-            li 1
-            li 2
+            li #{user.contributions}
+            li 'Example contribution'
+            each val in user.contributions
+                li= val
         //p # of contributions: //count number of contributions from lines above
         p # of subscribers: 0
         p List of subscribers:

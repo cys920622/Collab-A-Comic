@@ -5,6 +5,8 @@ var Comic = require('../models/comic');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
+var mongoose = require('mongoose');
+var db = mongoose.connection;
 
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -187,6 +189,11 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
       image: c.link
     });
   }
+  console.log('Current user: '+req.user.username);
+  req.user.contributions.push(comic.title);
+  req.user.update(
+    {$push: { contributions: comic.title}}
+  )
 });
 
 router.get('/comic', function(req, res){

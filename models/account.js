@@ -13,7 +13,8 @@ var Account = new Schema({
     email: String,
     username: String,
     password: String,
-    isContributor: Boolean
+    isContributor: Boolean,
+    contributions: [String]
 });
 
 Account.plugin(passportLocalMongoose);

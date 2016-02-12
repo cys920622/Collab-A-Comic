@@ -1,12 +1,13 @@
 var express = require('express');
 var passport = require('passport');
+var app = require('../app');
 var Account = require('../models/account');
 var Comic = require('../models/comic');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
-var db = mongoose.connection;
+//var db = app.mongoose.connection;
 
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -102,7 +103,10 @@ router.get('/homepage', isLoggedIn, function (req, res) {
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
 router.get('/profile', isLoggedIn, function (req, res) {
-  res.render('profile', {user: req.user});
+  res.render('profile', {
+    user: req.user,
+    comics: req.user.contributions
+  });
 });
 
 // Middleware for checking login state
@@ -156,6 +160,7 @@ router.get('/uploadtest', function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
   });
+  console.log('Current db: '+req.mongoose.connection);
 });
 
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
@@ -182,18 +187,22 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
     link: 'uploads/'+req.file.filename,
     path: req.file.path
   });
-  comic.save(getcomic(comic));
-  function getcomic(c) {
+  comic.save(getcomic(req, comic));
+  function getcomic(req, c) {
+    console.log('Comic _id: ' + c.id);
+
     res.render('comic', {
       title: c.title,
       image: c.link
     });
+    console.log('Current username : '+req.user.username);
+    console.log('Current user _id : '+req.user._id);
+    Account.update({_id: req.user._id}, {$push: { contributions: comic.id}}, function (err) {
+      if (err) console.log("Error pushing comic to contributions!");
+    });
   }
-  console.log('Current user: '+req.user.username);
-  req.user.contributions.push(comic.title);
-  req.user.update(
-    {$push: { contributions: comic.title}}
-  )
+
+
 });
 
 router.get('/comic', function(req, res){

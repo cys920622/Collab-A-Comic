@@ -150,6 +150,7 @@ function sendConfEmail(req, res) {
 }
 
 // Multer file upload
+/* GET new comic page */
 router.get('/uploadtest', isLoggedIn, function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
@@ -157,6 +158,7 @@ router.get('/uploadtest', isLoggedIn, function(req, res){
   console.log('Current db: '+req.mongoose.connection);
 });
 
+/* POST new comic */
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
 router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
   //console.log(req.body); //form fields
@@ -178,7 +180,10 @@ router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl
     title: req.body.title,
     originalname: req.file.originalname,
     filename: req.file.filename,
-    link: '/uploads/panels/'+req.file.filename,
+    imgarray: [{
+      author: req.user.username,
+      panelloc: '/uploads/panels/'+req.file.filename
+    }],
     path: req.file.path
   });
 
@@ -232,13 +237,33 @@ router.get('/comic/:comicid', function (req, res) {
       console.log('Comic not found.');
     } else {
       var comic = doc;
-      console.log('Comic: '+doc);
-      console.log('Searching for :' + req.params.comicid);
+      //console.log('Comic: '+doc);
+      //console.log('Searching for :' + req.params.comicid);
       res.render('comic', {
+        cid: req.params.comicid,
         title: doc.title,
-        image: doc.link
+        panelarray: doc.imgarray
       });
     }
   });
 });
+
+/* POST new panel to comic */
+router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
+  var cid = req.params.comicid;
+  //console.log("CID: "+cid);
+
+  var imgloc = '/uploads/panels/'+req.file.filename;
+  //console.log("imgloc: " + imgloc);
+  Comic.update({_id: cid}, {$push: { imgarray: {
+    author: req.user.username,
+    panelloc: imgloc
+  }}}, function (err) {
+    if (err) console.log('Error adding panel!');
+  });
+
+  // TODO: check if comic is in contributor's list of contributions and add if false.
+  res.redirect(req.get('referer'));
+});
+
 module.exports = router;

@@ -5,8 +5,24 @@ extends layout
 
 link(rel='stylesheet', href='css/newcomic.css')
 
+
 block content
     include toolbar
     h1 #{title}
     body
-        img(src=image)
+        each panel in panelarray
+            - var author = panel.author;
+            img(src=panel.panelloc, width='400')
+            p.
+                Contributor: #{author}
+            br
+
+    body
+        - var comicid = cid;
+        form(method="post",enctype="multipart/form-data",action='/newpanel/'+comicid)
+            p
+                input(type="file",name="upl")
+            p
+                input(type="submit")
+            p
+                img(src=image)

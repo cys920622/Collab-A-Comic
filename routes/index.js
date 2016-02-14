@@ -105,7 +105,6 @@ router.get('/homepage', isLoggedIn, function (req, res) {
 
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
-  console.log("Checking if logged in");
   if (req.user) {
     console.log("User is logged in");
     next();
@@ -115,14 +114,16 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+/* Middleware for checking login and contributor status.
+   Behavior: if false, do nothing.
+ */
 function isContributor(req, res, next) {
-  console.log("Checking if logged in");
   if (req.user.isContributor == true) {
     console.log("User is contributor");
     next();
   } else {
     console.log("User is NOT contributor");
-    res.redirect('/login');
+    res.redirect('/#');
   }
 }
 

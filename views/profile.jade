@@ -1,6 +1,6 @@
 //
    Created by danielchoi on 2016-02-08.
-link(href='/css/profile.css', rel='stylesheet')
+link(href='/stylesheets/profile.css', rel='stylesheet')
 
 extends layout
 
@@ -22,8 +22,10 @@ block content
         li Last name: #{user.lastName}
         li Email: #{user.email}
 
-    if (user.isContributor)
-        li#badge [Contributor]
+    if (user.isContributor == 1)
+        #badge [Contributor]
+    if (user.isContributor == 0)
+        #badge [Viewer]
 
         if (user)
             button(onclick='myFunction()') Follow
@@ -39,15 +41,15 @@ block content
                         document.getElementById("demo").innerHTML = x;
                     }
 
-        p List of contributions:
+    p List of contributions:
+        br
+        each comic in comics
+            - var title = comic.title;
+            - var link = '/comic/'+comic.cid;
+            a(href=link) #{title}
             br
-            each comic in comics
-                - var title = comic.title;
-                - var link = '/comic/'+comic.cid;
-                a(href=link) #{title}
-                br
-        p # of subscribers: 0
-        p List of subscribers:
+    p # of subscribers: 0
+    p List of subscribers:
     if (user)
         form(name="add-estimation", method="post")
             div.input

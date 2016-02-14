@@ -103,15 +103,6 @@ router.get('/homepage', isLoggedIn, function (req, res) {
   res.render('homepage', {user: req.user});
 });
 
-/* GET profile page. */
-// https://scotch.io/tutorials/easy-node-authentication-setup-and-local
-router.get('/profile', isLoggedIn, function (req, res) {
-  res.render('profile', {
-    user: req.user,
-    comics: req.user.contributions
-  });
-});
-
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
   console.log("Checking if logged in");
@@ -132,7 +123,7 @@ router.get('/logout', function (req, res) {
     message: "You've been logged out!" });
 });
 
-// Testing postmark
+// Middleware to send confirmation email
 function sendConfEmail(req, res) {
   var textbody;
   if (req.body.isContributor == 1) {
@@ -213,5 +204,27 @@ router.get('/comic', function(req, res){
   })
 });
 
+/* GET profile page. */
+// https://scotch.io/tutorials/easy-node-authentication-setup-and-local
+router.get('/profile', isLoggedIn, function (req, res) {
+  //console.log('USER: ' +req.user);
+  res.redirect(req.user.username);
+});
+
+/* GET profile page by dynamic routing */
+router.get('/:username', isLoggedIn, function (req, res) {
+  Account.findOne({username: req.params.username}, function(err, doc) {
+    if (err) {
+      console.log('User not found.');
+    } else {
+      var account = doc;
+      console.log(doc);
+      res.render('profile', {
+        user: doc,
+        comics: doc.contributions
+      });
+    }
+  });
+});
 
 module.exports = router;

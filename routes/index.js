@@ -44,30 +44,33 @@ router.post('/register', function(req, res) {
   });
 });
 
-/* GET login page. */
 
-// new stuff, load page
-router.post('/loadimage', function(req, res) {
+//router.post('/loadimage', function(req, res) {
+//
+//  Image.image(new Image({
+//    //name : req.body.name;
+//    title: req.body.title,
+//    image: {
+//      creationDate: req.body.creationDate,
+//      name: req.body.name,
+//      filename: req.body.filename
+//    }
+//  }))
+//});
+//
+///* GET login page. */
+//router.get('/loadImage', function(req, res) {
+//  res.render('loadImage')
+//});
 
-  Image.image(new Image({
-    //name : req.body.name;
-    title: req.body.title,
-    image: {
-      creationDate: req.body.creationDate,
-      name: req.body.name,
-      filename: req.body.filename
-    }
-  }))
-});
-
-router.get('/loadImage', function(req, res) {
-  res.render('loadImage')
-});
-
+/* GET toolbar. */
+// TODO: do we need this?
 router.get('/toolbar', function(req, res) {
   res.render('toolbar')
 });
 
+
+/* GET login page. */
 router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });
@@ -165,11 +168,11 @@ router.get('/uploadtest', function(req, res){
 
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
 router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
-  console.log(req.body); //form fields
+  //console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
    */
-  console.log(req.file); //form files
+  //console.log(req.file); //form files
   /* example output:
    { fieldname: 'upl',
    originalname: 'grumpy.png',
@@ -187,21 +190,21 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
     link: 'uploads/'+req.file.filename,
     path: req.file.path
   });
-  comic.save(getcomic(req, comic));
-  function getcomic(req, c) {
-    console.log('Comic _id: ' + c.id);
 
+  function getcomic(req, c) {
     res.render('comic', {
       title: c.title,
       image: c.link
     });
-    console.log('Current username : '+req.user.username);
-    console.log('Current user _id : '+req.user._id);
-    Account.update({_id: req.user._id}, {$push: { contributions: comic.id}}, function (err) {
+    Account.update({_id: req.user._id}, {$push: { contributions: {
+      title: c.title,
+      link: c.link
+    }}}, function (err) {
       if (err) console.log("Error pushing comic to contributions!");
     });
   }
 
+  comic.save(getcomic(req, comic));
 
 });
 

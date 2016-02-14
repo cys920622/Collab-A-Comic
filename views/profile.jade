@@ -6,9 +6,6 @@ extends layout
 
 block content
     include toolbar
-    //a(href="profile#") Home
-    //    a(href="user") User Information
-    //        a(href="logout") Logout
     h1= title
     p #{user.firstName}'s Profile
     if (!user)
@@ -43,20 +40,23 @@ block content
                     }
 
         p List of contributions:
-            each val in comics
-                li= val
+            br
+            each comic in comics
+                - var title = comic.title;
+                - var link = comic.link;
+                a(href=link) #{title}
+                br
         p # of subscribers: 0
         p List of subscribers:
-            li 1
-            li 2
     if (user)
         form(name="add-estimation", method="post")
             div.input
                 span.label Title
-                input(type="text", name="title")
+                input(type="text", name="title", placeholder="Title here")
             div.input
                 span.label Description
-                textarea(name="description", cols="40", rows="5")
+                textarea(name="description", cols="40", rows="5", placeholder="Enter " +
+                "a description!")
             div.actions
                 input(type="submit", value="add")
     else

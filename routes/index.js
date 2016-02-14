@@ -115,6 +115,18 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+function isContributor(req, res, next) {
+  console.log("Checking if logged in");
+  if (req.user.isContributor == true) {
+    console.log("User is contributor");
+    next();
+  } else {
+    console.log("User is NOT contributor");
+    res.redirect('/login');
+  }
+}
+
+
 router.get('/logout', function (req, res) {
   console.log("LOGGING OUT");
   req.logout();
@@ -151,7 +163,7 @@ function sendConfEmail(req, res) {
 
 // Multer file upload
 /* GET new comic page */
-router.get('/uploadtest', isLoggedIn, function(req, res){
+router.get('/uploadtest', isContributor, function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
   });

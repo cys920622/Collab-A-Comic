@@ -12,9 +12,10 @@ block content
     body
         each panel in panelarray
             - var author = panel.author;
+            - var authorlink = '/user/'+author;
             img(src=panel.panelloc, width='400')
             p.
-                Contributor: #{author}
+                By #[a(href=authorlink) #{author}]
             br
 
     body

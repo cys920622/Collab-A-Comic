@@ -43,7 +43,7 @@ block content
             br
             each comic in comics
                 - var title = comic.title;
-                - var link = comic.link;
+                - var link = '/comic/'+comic.cid;
                 a(href=link) #{title}
                 br
         p # of subscribers: 0

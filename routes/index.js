@@ -182,14 +182,15 @@ router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl
     path: req.file.path
   });
 
+  c.save();
+
   Account.update({_id: req.user._id}, {$push: { contributions: {
+    cid: c.id,
     title: c.title,
     link: c.link
   }}}, function (err) {
     if (err) console.log("Error pushing comic to contributions!");
   });
-
-  c.save();
 
   res.redirect('/comic/' + c.id);
 
@@ -232,7 +233,7 @@ router.get('/comic/:comicid', function (req, res) {
     } else {
       var comic = doc;
       console.log('Comic: '+doc);
-      console.log('Rendering: '+ doc.link);
+      console.log('Searching for :' + req.params.comicid);
       res.render('comic', {
         title: doc.title,
         image: doc.link

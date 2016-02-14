@@ -15,6 +15,7 @@ var Account = new Schema({
     password: String,
     isContributor: Boolean,
     contributions: [{
+        cid: String,
         title: String,
         link: String
     }]

@@ -1,12 +1,13 @@
 var express = require('express');
 var passport = require('passport');
+var app = require('../app');
 var Account = require('../models/account');
 var Comic = require('../models/comic');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
-var db = mongoose.connection;
+//var db = app.mongoose.connection;
 
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -43,30 +44,33 @@ router.post('/register', function(req, res) {
   });
 });
 
-/* GET login page. */
 
-// new stuff, load page
-router.post('/loadimage', function(req, res) {
+//router.post('/loadimage', function(req, res) {
+//
+//  Image.image(new Image({
+//    //name : req.body.name;
+//    title: req.body.title,
+//    image: {
+//      creationDate: req.body.creationDate,
+//      name: req.body.name,
+//      filename: req.body.filename
+//    }
+//  }))
+//});
+//
+///* GET login page. */
+//router.get('/loadImage', function(req, res) {
+//  res.render('loadImage')
+//});
 
-  Image.image(new Image({
-    //name : req.body.name;
-    title: req.body.title,
-    image: {
-      creationDate: req.body.creationDate,
-      name: req.body.name,
-      filename: req.body.filename
-    }
-  }))
-});
-
-router.get('/loadImage', function(req, res) {
-  res.render('loadImage')
-});
-
+/* GET toolbar. */
+// TODO: do we need this?
 router.get('/toolbar', function(req, res) {
   res.render('toolbar')
 });
 
+
+/* GET login page. */
 router.get('/login', function (req, res) {
   res.render('login', {user: req.user});
 });
@@ -99,12 +103,6 @@ router.get('/homepage', isLoggedIn, function (req, res) {
   res.render('homepage', {user: req.user});
 });
 
-/* GET profile page. */
-// https://scotch.io/tutorials/easy-node-authentication-setup-and-local
-router.get('/profile', isLoggedIn, function (req, res) {
-  res.render('profile', {user: req.user});
-});
-
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
   console.log("Checking if logged in");
@@ -125,7 +123,7 @@ router.get('/logout', function (req, res) {
     message: "You've been logged out!" });
 });
 
-// Testing postmark
+// Middleware to send confirmation email
 function sendConfEmail(req, res) {
   var textbody;
   if (req.body.isContributor == 1) {
@@ -152,19 +150,22 @@ function sendConfEmail(req, res) {
 }
 
 // Multer file upload
-router.get('/uploadtest', function(req, res){
+/* GET new comic page */
+router.get('/uploadtest', isLoggedIn, function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
   });
+  console.log('Current db: '+req.mongoose.connection);
 });
 
+/* POST new comic */
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
-  console.log(req.body); //form fields
+router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
+  //console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
    */
-  console.log(req.file); //form files
+  //console.log(req.file); //form files
   /* example output:
    { fieldname: 'upl',
    originalname: 'grumpy.png',
@@ -175,25 +176,29 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
    path: 'public/uploads/436ec561793aa4dc475a88e84776b1b9',
    size: 277056 }
    */
-  var comic = new Comic({
+  var c = new Comic({
     title: req.body.title,
     originalname: req.file.originalname,
     filename: req.file.filename,
-    link: 'uploads/'+req.file.filename,
+    imgarray: [{
+      author: req.user.username,
+      panelloc: '/uploads/panels/'+req.file.filename
+    }],
     path: req.file.path
   });
-  comic.save(getcomic(comic));
-  function getcomic(c) {
-    res.render('comic', {
-      title: c.title,
-      image: c.link
-    });
-  }
-  console.log('Current user: '+req.user.username);
-  req.user.contributions.push(comic.title);
-  req.user.update(
-    {$push: { contributions: comic.title}}
-  )
+
+  c.save();
+
+  Account.update({_id: req.user._id}, {$push: { contributions: {
+    cid: c.id,
+    title: c.title,
+    link: c.link
+  }}}, function (err) {
+    if (err) console.log("Error pushing comic to contributions!");
+  });
+
+  res.redirect('/comic/' + c.id);
+
 });
 
 router.get('/comic', function(req, res){
@@ -201,5 +206,64 @@ router.get('/comic', function(req, res){
   })
 });
 
+/* GET profile page. */
+// https://scotch.io/tutorials/easy-node-authentication-setup-and-local
+router.get('/profile', function (req, res) {
+  //console.log('USER: ' +req.user);
+  res.redirect('/user/'+req.user.username);
+});
+
+/* GET profile page by dynamic routing */
+// http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
+router.get('/user/:username', function (req, res) {
+  Account.findOne({username: req.params.username}, function(err, doc) {
+    if (err) {
+      console.log('User not found.');
+    } else {
+      var account = doc;
+      console.log(doc);
+      res.render('profile', {
+        user: doc,
+        comics: doc.contributions
+      });
+    }
+  });
+});
+
+router.get('/comic/:comicid', function (req, res) {
+  console.log("Looking for comic...");
+  Comic.findById(req.params.comicid, function(err, doc) {
+    if (err) {
+      console.log('Comic not found.');
+    } else {
+      var comic = doc;
+      //console.log('Comic: '+doc);
+      //console.log('Searching for :' + req.params.comicid);
+      res.render('comic', {
+        cid: req.params.comicid,
+        title: doc.title,
+        panelarray: doc.imgarray
+      });
+    }
+  });
+});
+
+/* POST new panel to comic */
+router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
+  var cid = req.params.comicid;
+  //console.log("CID: "+cid);
+
+  var imgloc = '/uploads/panels/'+req.file.filename;
+  //console.log("imgloc: " + imgloc);
+  Comic.update({_id: cid}, {$push: { imgarray: {
+    author: req.user.username,
+    panelloc: imgloc
+  }}}, function (err) {
+    if (err) console.log('Error adding panel!');
+  });
+
+  // TODO: check if comic is in contributor's list of contributions and add if false.
+  res.redirect(req.get('referer'));
+});
 
 module.exports = router;

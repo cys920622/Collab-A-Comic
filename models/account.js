@@ -1,9 +1,9 @@
 /**
  * Created by danielchoi on 2016-02-08.
  */
-
 // Passport tutorial: http://bit.ly/1TNXvgG
 var mongoose = require('mongoose');
+var Comic = require('../models/comic');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 
@@ -14,7 +14,11 @@ var Account = new Schema({
     username: String,
     password: String,
     isContributor: Boolean,
-    contributions: [String]
+    contributions: [{
+        cid: String,
+        title: String,
+        link: String
+    }]
 });
 
 Account.plugin(passportLocalMongoose);

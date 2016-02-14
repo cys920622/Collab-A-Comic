@@ -150,7 +150,7 @@ function sendConfEmail(req, res) {
 }
 
 // Multer file upload
-router.get('/uploadtest', function(req, res){
+router.get('/uploadtest', isLoggedIn, function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
   });
@@ -158,7 +158,7 @@ router.get('/uploadtest', function(req, res){
 });
 
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), function(req,res){
+router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
   //console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
@@ -174,28 +174,24 @@ router.post('/uploadimg', multer({ dest: './public/uploads/'}).single('upl'), fu
    path: 'public/uploads/436ec561793aa4dc475a88e84776b1b9',
    size: 277056 }
    */
-  var comic = new Comic({
+  var c = new Comic({
     title: req.body.title,
     originalname: req.file.originalname,
     filename: req.file.filename,
-    link: 'uploads/'+req.file.filename,
+    link: '/uploads/panels/'+req.file.filename,
     path: req.file.path
   });
 
-  function getcomic(req, c) {
-    res.render('comic', {
-      title: c.title,
-      image: c.link
-    });
-    Account.update({_id: req.user._id}, {$push: { contributions: {
-      title: c.title,
-      link: c.link
-    }}}, function (err) {
-      if (err) console.log("Error pushing comic to contributions!");
-    });
-  }
+  Account.update({_id: req.user._id}, {$push: { contributions: {
+    title: c.title,
+    link: c.link
+  }}}, function (err) {
+    if (err) console.log("Error pushing comic to contributions!");
+  });
 
-  comic.save(getcomic(req, comic));
+  c.save();
+
+  res.redirect('/comic/' + c.id);
 
 });
 
@@ -206,13 +202,14 @@ router.get('/comic', function(req, res){
 
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
-router.get('/profile', isLoggedIn, function (req, res) {
+router.get('/profile', function (req, res) {
   //console.log('USER: ' +req.user);
-  res.redirect(req.user.username);
+  res.redirect('/user/'+req.user.username);
 });
 
 /* GET profile page by dynamic routing */
-router.get('/:username', isLoggedIn, function (req, res) {
+// http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
+router.get('/user/:username', function (req, res) {
   Account.findOne({username: req.params.username}, function(err, doc) {
     if (err) {
       console.log('User not found.');
@@ -227,4 +224,20 @@ router.get('/:username', isLoggedIn, function (req, res) {
   });
 });
 
+router.get('/comic/:comicid', function (req, res) {
+  console.log("Looking for comic...");
+  Comic.findById(req.params.comicid, function(err, doc) {
+    if (err) {
+      console.log('Comic not found.');
+    } else {
+      var comic = doc;
+      console.log('Comic: '+doc);
+      console.log('Rendering: '+ doc.link);
+      res.render('comic', {
+        title: doc.title,
+        image: doc.link
+      });
+    }
+  });
+});
 module.exports = router;

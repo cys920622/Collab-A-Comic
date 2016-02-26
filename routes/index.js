@@ -105,7 +105,6 @@ router.get('/homepage', isLoggedIn, function (req, res) {
 
 // Middleware for checking login state
 function isLoggedIn(req, res, next) {
-  console.log("Checking if logged in");
   if (req.user) {
     console.log("User is logged in");
     next();
@@ -114,6 +113,20 @@ function isLoggedIn(req, res, next) {
     res.redirect('/login');
   }
 }
+
+/* Middleware for checking login and contributor status.
+ Behavior: if false, do nothing.
+ */
+function isContributor(req, res, next) {
+  if (req.user.isContributor == true) {
+    console.log("User is contributor");
+    next();
+  } else {
+    console.log("User is NOT contributor");
+    res.redirect('/#');
+  }
+}
+
 
 router.get('/logout', function (req, res) {
   console.log("LOGGING OUT");
@@ -129,7 +142,7 @@ function sendConfEmail(req, res) {
   if (req.body.isContributor == 1) {
     console.log(req.body.isContributor);
     textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
-    "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
+        "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
   } else {
     console.log(req.body.isContributor);
     textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
@@ -151,7 +164,7 @@ function sendConfEmail(req, res) {
 
 // Multer file upload
 /* GET new comic page */
-router.get('/uploadtest', isLoggedIn, function(req, res){
+router.get('/uploadtest', isContributor, function(req, res){
   res.render('uploadtest', {
     image: 'images/calvinandhobbes.jpg'
   });
@@ -263,6 +276,14 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).si
   });
 
   // TODO: check if comic is in contributor's list of contributions and add if false.
+  //Account.find({username: req.user.username}).where(cid).in(req.user.contributions).
+  //    exec(function(err) {
+  //      if (err) {
+  //        console.log('This cid is not yet in array');
+  //      } else {
+  //        console.log("CID already in array");
+  //      }
+  //    });
   res.redirect(req.get('referer'));
 });
 

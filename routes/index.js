@@ -115,7 +115,7 @@ function isLoggedIn(req, res, next) {
 }
 
 /* Middleware for checking login and contributor status.
-   Behavior: if false, do nothing.
+ Behavior: if false, do nothing.
  */
 function isContributor(req, res, next) {
   if (req.user.isContributor == true) {
@@ -142,7 +142,7 @@ function sendConfEmail(req, res) {
   if (req.body.isContributor == 1) {
     console.log(req.body.isContributor);
     textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
-    "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
+        "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
   } else {
     console.log(req.body.isContributor);
     textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
@@ -276,6 +276,14 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).si
   });
 
   // TODO: check if comic is in contributor's list of contributions and add if false.
+  //Account.find({username: req.user.username}).where(cid).in(req.user.contributions).
+  //    exec(function(err) {
+  //      if (err) {
+  //        console.log('This cid is not yet in array');
+  //      } else {
+  //        console.log("CID already in array");
+  //      }
+  //    });
   res.redirect(req.get('referer'));
 });
 

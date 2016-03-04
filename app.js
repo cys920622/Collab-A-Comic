@@ -11,7 +11,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var multer = require('multer');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
+var users = require('./routes/users.ts');
 
 var app = express();
 
@@ -88,9 +88,6 @@ app.use(function(err, req, res, next) {
   });
 });
 // nu
-var multer = require('multer');
-
-
 
 
 app.use(multer({dest: './uploads'}).single('panel'));

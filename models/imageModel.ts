@@ -1,7 +1,8 @@
+//TODO: is this file being used?
 //write image model
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-	
+
 
 var imageSchema = new Schema({
 	title: String,

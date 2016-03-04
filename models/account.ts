@@ -3,7 +3,7 @@
  */
 // Passport tutorial: http://bit.ly/1TNXvgG
 var mongoose = require('mongoose');
-var Comic = require('../models/comic');
+var Comic = require('./comic.ts');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 

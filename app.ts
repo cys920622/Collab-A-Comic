@@ -10,7 +10,7 @@ var expressSession = require('express-session');
 var LocalStrategy = require('passport-local').Strategy;
 var multer = require('multer');
 
-var routes = require('./routes/index');
+var routes = require('./routes/index.ts');
 var users = require('./routes/users.ts');
 
 var app = express();
@@ -42,7 +42,7 @@ app.use('/users', users);
 
 // Passport tutorial: http://bit.ly/1TNXvgG
 // Passport configuration
-var Account = require('./models/account');
+var Account = require('./models/account.ts');
 passport.use('local-login', new LocalStrategy(Account.authenticate()));
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());

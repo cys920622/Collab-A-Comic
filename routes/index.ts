@@ -197,7 +197,10 @@ router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl
       author: req.user.username,
       panelloc: '/uploads/panels/'+req.file.filename
     }],
-    path: req.file.path
+    path: req.file.path,
+    subs: [{
+      subscriber: req.user.username
+    }]
   });
 
   c.save();

@@ -8,12 +8,13 @@ var Comic = new Schema({
     originalname: String,
     filename: String,
     imgarray: [{
-        author: String,
-        panelloc: String
-    }],
+            author: String,
+            panelloc: String
+        }],
     path: String,
     subs: [{
-        subscriber: String
-    }]
+            subscriber: String
+        }]
 });
 module.exports = mongoose.model('Comic', Comic);
+//# sourceMappingURL=comic.js.map

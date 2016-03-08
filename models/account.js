@@ -17,6 +17,10 @@ var Account = new Schema({
             cid: String,
             title: String,
             link: String
+        }],
+    subs: [{
+            subCid: String,
+            subComicName: String
         }]
 });
 Account.plugin(passportLocalMongoose);

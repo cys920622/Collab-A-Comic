@@ -173,7 +173,7 @@ router.get('/uploadtest', isContributor, function(req, res){
 
 /* POST new comic */
 // https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
+router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'}).single('upl'), function(req,res){
   //console.log(req.body); //form fields
   /* example output:
    { title: 'abc' }
@@ -217,21 +217,21 @@ router.post('/newcomic', multer({ dest: './public/uploads/panels/'}).single('upl
 
 });
 
-router.get('/comic', function(req, res){
+router.get('/comic', isLoggedIn, function(req, res){
   res.render('comic', {
   })
 });
 
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
-router.get('/profile', function (req, res) {
+router.get('/profile', isLoggedIn, function (req, res) {
   //console.log('USER: ' +req.user);
   res.redirect('/user/'+req.user.username);
 });
 
 /* GET profile page by dynamic routing */
 // http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
-router.get('/user/:username', function (req, res) {
+router.get('/user/:username', isLoggedIn, function (req, res) {
   Account.findOne({username: req.params.username}, function(err, doc) {
     if (err) {
       console.log('User not found.');
@@ -246,19 +246,32 @@ router.get('/user/:username', function (req, res) {
   });
 });
 
-router.get('/comic/:comicid', function (req, res) {
+router.get('/comic/:comicid', isLoggedIn, function (req, res) {
   console.log("Looking for comic...");
+  function checkSub(username, subs) {
+    for (var i = 0; subs.length > i; i++) {
+      if (subs[i].subscriber === username) {
+        return true;
+      }
+    }
+    return false;
+  }
   Comic.findById(req.params.comicid, function(err, doc) {
     if (err) {
       console.log('Comic not found.');
     } else {
       var comic = doc;
+      var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+      console.log(viewerIsSubbed);
       //console.log('Comic: '+doc);
       //console.log('Searching for :' + req.params.comicid);
       res.render('comic', {
+        viewerName: req.user.username,
         cid: req.params.comicid,
         title: doc.title,
-        panelarray: doc.imgarray
+        panelarray: doc.imgarray,
+        subscribers: doc.subs,
+        isSubbed: viewerIsSubbed
       });
     }
   });
@@ -287,6 +300,55 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).si
   //        console.log("CID already in array");
   //      }
   //    });
+  res.redirect(req.get('referer'));
+});
+
+// Add new subscriber to comic
+router.post('/:comicid/subscribers/subscribe',function(req,res){
+  var cid = req.params.comicid;
+  var cTitle = "";
+  console.log("Trying to subscribe "+ req.user.username + " to "+ cid);
+
+  Comic.findById(cid, function(err, doc) {
+    if (err) {
+      console.log('Comic not found.');
+    } else {
+      cTitle = doc.title;
+      console.log("Subscribing "+req.user.username+" to "+cTitle);
+      // moved this here to make update synchronous
+      Account.update({_id: req.user._id}, {$addToSet:
+      { subs: {
+        subCid: cid,
+        subComicName: cTitle
+      }}}, function (err) {
+        if (err) console.log('Error adding subscription!');
+      });
+  }});
+
+  Comic.update({_id: cid}, {$addToSet:
+  { subs: { subscriber:
+    req.user.username
+  }}}, function (err) {
+    if (err) console.log('Error adding subscriber!');
+  });
+
+  res.redirect(req.get('referer'));
+});
+
+// Remove an existing subscriber from comic
+router.post('/:comicid/subscribers/unsubscribe',function(req,res){
+  var cid = req.params.comicid;
+  console.log("Trying to unsub "+ req.user.username + " from "+ cid);
+  Comic.update({_id: cid}, {$pull:
+  { subs: { subscriber: req.user.username
+  }}}, function (err) {
+    if (err) console.log('Error removing subscriber!');
+  });
+  Account.update({_id: req.user._id}, {$pull:
+  { subs: { subCid: cid
+  }}}, function (err) {
+    if (err) console.log('Error removing subscription!');
+  });
   res.redirect(req.get('referer'));
 });
 

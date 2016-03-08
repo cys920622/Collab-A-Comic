@@ -48,7 +48,19 @@ block content
             - var link = '/comic/'+comic.cid;
             a(href=link) #{title}
             br
+
     p # of subscribers: 0
+
+
+    p Subscriptions:
+        - var subs = user.subs;
+        each c in subs
+            - var subbedComic = c.subCid;
+            - var subTitle = c.subComicName;
+            - var cLink = '/comic/'+subbedComic;
+            a(href=cLink) #{subTitle}
+            br
+
     p List of subscribers:
     if (user)
         form(name="add-estimation", method="post")

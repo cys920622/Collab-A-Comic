@@ -8,7 +8,18 @@ link(rel='stylesheet', href='/stylesheets/newcomic.css')
 
 block content
     include toolbar
+    - var comicid = cid;
+    - var viewer = viewerName;
     h1 #{title}
+    body
+        if isSubbed
+            form(method="post",action='/'+comicid+'/subscribers/unsubscribe/')
+                input(type="submit", value="Unsubscribe")
+        else
+            form(method="post",action='/' + comicid + '/subscribers/subscribe/')
+                input(type="submit", value="Subscribe")
+
+
     body
         each panel in panelarray
             - var author = panel.author;
@@ -19,7 +30,17 @@ block content
             br
 
     body
-        - var comicid = cid;
+        p.
+            Subscribers:
+        each s in subscribers
+            - var u = s.subscriber;
+            - var uLink = '/user/'+u;
+            p.
+                #[a(href=uLink) #{u}]
+
+
+    body
+
         form(method="post",enctype="multipart/form-data",action='/newpanel/'+comicid)
             p
                 input(type="file",name="upl")

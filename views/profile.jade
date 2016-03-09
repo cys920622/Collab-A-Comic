@@ -1,6 +1,5 @@
 //
    Created by danielchoi on 2016-02-08.
-link(href='/stylesheets/profile.css', rel='stylesheet')
 
 extends layout
 
@@ -25,12 +24,12 @@ block content
     if (user)
 
         p Your information:
-        li Username: #{user.username}
+        p Username: #{user.username}
         // Display user image - will be fixed for now.
-        img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
-        li First name: #{user.firstName}
-        li Last name: #{user.lastName}
-        li Email: #{user.email}
+        img(src="http://media1.popsugar-assets.com/files/2013/01/02/4/192/1922398/3df2ea52acfaf1ad_kan.xxxlarge_2.jpg")
+        p First name: #{user.firstName}
+        p Last name: #{user.lastName}
+        p Email: #{user.email}
 
     if (user.isContributor == 1)
         #badge [Contributor]
@@ -76,11 +75,11 @@ block content
     p Subscriptions:
         - var subs = user.subs;
         each c in subs
+            br
             - var subbedComic = c.subCid;
             - var subTitle = c.subComicName;
             - var cLink = '/comic/'+subbedComic;
             a(href=cLink) #{subTitle}
-            br
 
     if (user)
         form(name="add-estimation", method="post")

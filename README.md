@@ -9,8 +9,10 @@ The team:
 * Lansi Chu (https://github.com/lansichu)
 
 Todo:
-- finish Sprint 1!
+- Finish Sprint 2
+- Upload testing plan to Wiki
+- Describe RESTful justification in Wiki
 
-last updated Feb 8, 2016
+last updated Mar 8, 2016
 
 ![Calvin and Hobbes](/images/calvinandhobbes.jpg)

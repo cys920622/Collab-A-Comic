@@ -256,7 +256,6 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
     var cid = req.params.comicid;
     //console.log("CID: "+cid);
     var imgloc = '/uploads/panels/' + req.file.filename;
-    //console.log("imgloc: " + imgloc);
     Comic.update({ _id: cid }, { $push: { imgarray: {
                 author: req.user.username,
                 panelloc: imgloc
@@ -264,15 +263,29 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
         if (err)
             console.log('Error adding panel!');
     });
-    // TODO: check if comic is in contributor's list of contributions and add if false.
-    //Account.find({username: req.user.username}).where(cid).in(req.user.contributions).
-    //    exec(function(err) {
-    //      if (err) {
-    //        console.log('This cid is not yet in array');
-    //      } else {
-    //        console.log("CID already in array");
-    //      }
-    //    });
+    function checkContributor(contribs, comicId) {
+        for (var i = 0; contribs.length > i; i++) {
+            if (contribs[i].cid === comicId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    Comic.findById(cid, function (err, doc) {
+        if (err) {
+            console.log('Comic not found.');
+        }
+        else if (!checkContributor(req.user.contributions, cid)) {
+            Account.update({ _id: req.user._id }, { $push: { contributions: {
+                        cid: doc.id,
+                        title: doc.title,
+                        link: doc.link
+                    } } }, function (err) {
+                if (err)
+                    console.log("Error pushing comic to contributions!");
+            });
+        }
+    });
     res.redirect(req.get('referer'));
 });
 // Add new subscriber to comic

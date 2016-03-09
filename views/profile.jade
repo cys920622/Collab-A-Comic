@@ -53,7 +53,7 @@ block content
 
     p List of contributions:
         each comic in comics
-        br
+            br
             - var title = comic.title;
             - var link = '/comic/'+comic.cid;
             a(href=link) #{title}

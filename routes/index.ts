@@ -178,6 +178,21 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
     if (err) console.log("Error pushing comic to contributions!");
   });
 
+  Account.findOne({username: req.user.username}, function(err, doc) {
+    if (err) {
+      console.log('User not found.');
+    } else {
+      var account = doc;
+      //console.log(doc);
+      for (var i = 0; i < doc.followers.length; i++) {
+        sendSubscriptionEmail(doc.followers[i].followerEmail, doc.followers[i].followerUserName,
+            req.user.username, c.title, c.id, "newComic");
+      }
+    }
+  });
+
+
+
   res.redirect('/comic/' + c.id);
 
 });
@@ -257,22 +272,26 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
   });
 });
 
+// Function to send notification emails
 function sendSubscriptionEmail(recipEmail, recipName, actorUsername, comic, cid, notificationType) {
   var textbody;
   var subject;
   if (notificationType === "newPanel") {
     textbody = "Hi "+recipName+", \n"+actorUsername+" contributed a new panel to "+comic+"!\n" +
-        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid;
+        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid+
+    "\n\nCheers, \nTeam Friendship";
     subject = "Collab-A-Comic: "+actorUsername+" contributed a new panel to "+comic+"!";
   }
   if (notificationType === "newComment") {
     textbody = "Hi "+recipName+", \n"+actorUsername+" posted a new comment on "+comic+"!\n" +
-        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid;
+        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid+
+        "\n\nCheers, \nTeam Friendship";
     subject = "Collab-A-Comic: "+actorUsername+" posted a new comment on "+comic+"!";
   }
   if (notificationType === "newComic") {
     textbody = "Hi "+recipName+", \n"+actorUsername+" made a new comic called "+comic+"!\n" +
-        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid;
+        "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid+
+        "\n\nCheers, \nTeam Friendship";
     subject = "Collab-A-Comic: "+actorUsername+" started a new comic!";
   }
   client.sendEmail({

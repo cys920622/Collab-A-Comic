@@ -9,14 +9,15 @@ block content
     h1 #{user.firstName}'s Profile
     - var profileUsername = user.username;
     - var viewerUsername = viewer.username;
-    - console.log("TEST - sent from HTML");
+    - var isViewerOwner = profileUsername == viewerUsername;
     body
-        if isSubbed
-            form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
-                input(type="submit", value="Unsubscribe")
-        else
-            form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
-                input(type="submit", value="Subscribe")
+        if !isViewerOwner
+            if isSubbed
+                form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
+                    input(type="submit", value="Unsubscribe")
+            else
+                form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
+                    input(type="submit", value="Subscribe")
     if (!user)
         a(href="/login") Login
         br
@@ -58,7 +59,19 @@ block content
             a(href=link) #{title}
             br
 
-    p # of subscribers: 0
+    - var subscribers = user.followers;
+    p Followers:
+        each u in subscribers
+            br
+            - var follower = u.followerUserName;
+            a(href='/user/'+follower) #{follower}
+
+    - var followingU = user.following;
+    p Following:
+        each f in followingU
+            br
+            - var fUname = f.followedUserName;
+            a(href='/user/' + fUname) #{fUname}
 
 
     p Subscriptions:
@@ -70,7 +83,6 @@ block content
             a(href=cLink) #{subTitle}
             br
 
-    p List of subscribers:
     if (user)
         form(name="add-estimation", method="post")
             div.input

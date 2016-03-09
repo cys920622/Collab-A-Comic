@@ -171,6 +171,7 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/' }
             //console.log(doc);
             for (var i = 0; i < doc.followers.length; i++) {
                 sendSubscriptionEmail(doc.followers[i].followerEmail, doc.followers[i].followerUserName, req.user.username, c.title, c.id, "newComic");
+                createNotification(doc.followers[i].followerUserName, req.user.username, c.title, c.id, "newComic");
             }
         }
     });
@@ -246,23 +247,23 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
     });
 });
 // Function to send notification emails
-function sendSubscriptionEmail(recipEmail, recipName, actorUsername, comic, cid, notificationType) {
+function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, cid, notificationType) {
     var textbody;
     var subject;
     if (notificationType === "newPanel") {
-        textbody = "Hi " + recipName + ", \n" + actorUsername + " contributed a new panel to " + comic + "!\n" +
+        textbody = "Hi " + recipUsername + ", \n" + actorUsername + " contributed a new panel to " + comic + "!\n" +
             "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid +
             "\n\nCheers, \nTeam Friendship";
         subject = "Collab-A-Comic: " + actorUsername + " contributed a new panel to " + comic + "!";
     }
     if (notificationType === "newComment") {
-        textbody = "Hi " + recipName + ", \n" + actorUsername + " posted a new comment on " + comic + "!\n" +
+        textbody = "Hi " + recipUsername + ", \n" + actorUsername + " posted a new comment on " + comic + "!\n" +
             "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid +
             "\n\nCheers, \nTeam Friendship";
         subject = "Collab-A-Comic: " + actorUsername + " posted a new comment on " + comic + "!";
     }
     if (notificationType === "newComic") {
-        textbody = "Hi " + recipName + ", \n" + actorUsername + " made a new comic called " + comic + "!\n" +
+        textbody = "Hi " + recipUsername + ", \n" + actorUsername + " made a new comic called " + comic + "!\n" +
             "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid +
             "\n\nCheers, \nTeam Friendship";
         subject = "Collab-A-Comic: " + actorUsername + " started a new comic!";
@@ -277,8 +278,30 @@ function sendSubscriptionEmail(recipEmail, recipName, actorUsername, comic, cid,
             console.error("Unable to send via postmark: " + error.message);
             return;
         }
-        console.info("POSTMARK: recipEmail: " + recipEmail + ", recipName: " + recipName + ", actorUsername: " +
+        console.info("POSTMARK: recipEmail: " + recipEmail + ", recipName: " + recipUsername + ", actorUsername: " +
             actorUsername + ", comic: " + comic + ", cid: " + cid + ", notificationType: " + notificationType);
+    });
+}
+// Function to create homepage notification
+function createNotification(recipUsername, actorUsername, comic, cid, notificationType) {
+    var textBody;
+    if (notificationType === "newPanel") {
+        textBody = actorUsername + " contributed a new panel to " + comic;
+    }
+    if (notificationType === "newComment") {
+        textBody = actorUsername + " posted a new comment on " + comic;
+    }
+    if (notificationType === "newComic") {
+        textBody = actorUsername + " made a new comic called " + comic;
+    }
+    Account.update({ username: recipUsername }, { $push: { notifications: {
+                notificationText: textBody,
+                actor: actorUsername,
+                comicName: comic,
+                notiCid: cid
+            } } }, function (err) {
+        if (err)
+            console.log("Error adding follower!");
     });
 }
 /* POST new panel to comic */
@@ -328,6 +351,7 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
             // Send notifications to subscribers
             for (var i = 0; i < doc.subs.length; i++) {
                 sendSubscriptionEmail(doc.subs[i].subscriberEmail, doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
+                createNotification(doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
             }
         }
         res.redirect(req.get('referer'));

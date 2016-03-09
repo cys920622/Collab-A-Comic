@@ -29,6 +29,12 @@ var Account = new Schema({
     }],
     following: [{
         followedUserName: String
+    }],
+    notifications: [{
+        notificationText: String,
+        actor: String,
+        comicName: String,
+        notiCid: String
     }]
 });
 

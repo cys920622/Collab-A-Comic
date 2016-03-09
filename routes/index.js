@@ -40,23 +40,6 @@ router.post('/register', function (req, res) {
         });
     });
 });
-//router.post('/loadimage', function(req, res) {
-//
-//  Image.image(new Image({
-//    //name : req.body.name;
-//    title: req.body.title,
-//    image: {
-//      creationDate: req.body.creationDate,
-//      name: req.body.name,
-//      filename: req.body.filename
-//    }
-//  }))
-//});
-//
-///* GET login page. */
-//router.get('/loadImage', function(req, res) {
-//  res.render('loadImage')
-//});
 /* GET toolbar. */
 // TODO: do we need this?
 router.get('/toolbar', function (req, res) {
@@ -66,18 +49,6 @@ router.get('/toolbar', function (req, res) {
 router.get('/login', function (req, res) {
     res.render('login', { user: req.user });
 });
-//Tried to use to display error message
-//passport.use('login', new LocalStrategy(
-//    function(username, password, done) {
-//      modeloUsuario.findOne({ username: username, password: password }, function(err, user) {
-//        if (err) { return done(err); }
-//        if (!user) {
-//          return done(null, false, {message: 'Incorrect username.'}); //Error to show
-//        }
-//        return done(null, user);
-//      });
-//    }
-//));
 /* POST login form */
 router.post('/login', passport.authenticate('local-login', {
     successRedirect: '/homepage',
@@ -178,7 +149,8 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/' }
             }],
         path: req.file.path,
         subs: [{
-                subscriber: req.user.username
+                subscriber: req.user.username,
+                subscriberEmail: req.user.email
             }]
     });
     c.save();
@@ -192,6 +164,7 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/' }
     });
     res.redirect('/comic/' + c.id);
 });
+// TODO: what is this doing here?
 router.get('/comic', isLoggedIn, function (req, res) {
     res.render('comic', {});
 });
@@ -228,6 +201,7 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
     });
 });
+// GET comic page
 router.get('/comic/:comicid', isLoggedIn, function (req, res) {
     console.log("Looking for comic...");
     function checkSub(username, subs) {
@@ -259,15 +233,51 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         }
     });
 });
+function sendSubscriptionEmail(recipEmail, recipName, actorUsername, comic, cid, notificationType) {
+    var textbody;
+    var subject;
+    if (notificationType === "newPanel") {
+        textbody = "Hi " + recipName + ", \n" + actorUsername + " contributed a new panel to " + comic + "!\n" +
+            "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid;
+        subject = "Collab-A-Comic: " + actorUsername + " contributed a new panel to " + comic + "!";
+    }
+    if (notificationType === "newComment") {
+        textbody = "Hi " + recipName + ", \n" + actorUsername + " posted a new comment on " + comic + "!\n" +
+            "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid;
+        subject = "Collab-A-Comic: " + actorUsername + " posted a new comment on " + comic + "!";
+    }
+    if (notificationType === "newComic") {
+        textbody = "Hi " + recipName + ", \n" + actorUsername + " made a new comic called " + comic + "!\n" +
+            "You can check it out here: https://collab-a-comic.herokuapp.com/comic/" + cid;
+        subject = "Collab-A-Comic: " + actorUsername + " started a new comic!";
+    }
+    client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": recipEmail,
+        "Subject": subject,
+        "TextBody": textbody
+    }, function (error, success) {
+        if (error) {
+            console.error("Unable to send via postmark: " + error.message);
+            return;
+        }
+        console.info("POSTMARK: recipEmail: " + recipEmail + ", recipName: " + recipName + ", actorUsername: " +
+            actorUsername + ", comic: " + comic + ", cid: " + cid + ", notificationType: " + notificationType);
+    });
+}
 /* POST new panel to comic */
 router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).single('upl'), function (req, res) {
     var cid = req.params.comicid;
     //console.log("CID: "+cid);
     var imgloc = '/uploads/panels/' + req.file.filename;
-    Comic.update({ _id: cid }, { $push: { imgarray: {
+    Comic.update({ _id: cid }, {
+        $push: {
+            imgarray: {
                 author: req.user.username,
                 panelloc: imgloc
-            } } }, function (err) {
+            }
+        }
+    }, function (err) {
         if (err)
             console.log('Error adding panel!');
     });
@@ -283,18 +293,29 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
         if (err) {
             console.log('Comic not found.');
         }
-        else if (!checkContributor(req.user.contributions, cid)) {
-            Account.update({ _id: req.user._id }, { $push: { contributions: {
-                        cid: doc.id,
-                        title: doc.title,
-                        link: doc.link
-                    } } }, function (err) {
-                if (err)
-                    console.log("Error pushing comic to contributions!");
-            });
+        else {
+            // Add comic to contributor's contributions
+            if (!checkContributor(req.user.contributions, cid)) {
+                Account.update({ _id: req.user._id }, {
+                    $push: {
+                        contributions: {
+                            cid: doc.id,
+                            title: doc.title,
+                            link: doc.link
+                        }
+                    }
+                }, function (err) {
+                    if (err)
+                        console.log("Error pushing comic to contributions!");
+                });
+            }
+            // Send notifications to subscribers
+            for (var i = 0; i < doc.subs.length; i++) {
+                sendSubscriptionEmail(doc.subs[i].subscriberEmail, doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
+            }
         }
+        res.redirect(req.get('referer'));
     });
-    res.redirect(req.get('referer'));
 });
 // Add new subscriber to comic
 router.post('/comic/:comicid/subscribers/subscribe', function (req, res) {
@@ -318,7 +339,9 @@ router.post('/comic/:comicid/subscribers/subscribe', function (req, res) {
             });
         }
     });
-    Comic.update({ _id: cid }, { $addToSet: { subs: { subscriber: req.user.username
+    Comic.update({ _id: cid }, { $addToSet: { subs: {
+                subscriber: req.user.username,
+                subscriberEmail: req.user.email
             } } }, function (err) {
         if (err)
             console.log('Error adding subscriber!');
@@ -344,6 +367,7 @@ router.post('/comic/:comicid/subscribers/unsubscribe', function (req, res) {
 // POST new subscriber to user
 router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function (req, res) {
     var subscriberUsername = req.user.username;
+    var subscriberEmail = req.user.email;
     var profileUsername = req.params.profileUsername;
     console.log(subscriberUsername);
     console.log(profileUsername);
@@ -352,7 +376,10 @@ router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function
         if (err)
             console.log("Error adding following!");
     });
-    Account.update({ username: profileUsername }, { $push: { followers: { followerUserName: subscriberUsername } } }, function (err) {
+    Account.update({ username: profileUsername }, { $push: { followers: {
+                followerUserName: subscriberUsername,
+                followerEmail: subscriberEmail
+            } } }, function (err) {
         if (err)
             console.log("Error adding follower!");
     });

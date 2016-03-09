@@ -13,7 +13,8 @@ var Comic = new Schema({
         }],
     path: String,
     subs: [{
-            subscriber: String
+            subscriber: String,
+            subscriberEmail: String
         }]
 });
 module.exports = mongoose.model('Comic', Comic);

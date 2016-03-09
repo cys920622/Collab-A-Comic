@@ -6,8 +6,17 @@ extends layout
 
 block content
     include toolbar
-    h1= title
-    p #{user.firstName}'s Profile
+    h1 #{user.firstName}'s Profile
+    - var profileUsername = user.username;
+    - var viewerUsername = viewer.username;
+    - console.log("TEST - sent from HTML");
+    body
+        if isSubbed
+            form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
+                input(type="submit", value="Unsubscribe")
+        else
+            form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
+                input(type="submit", value="Subscribe")
     if (!user)
         a(href="/login") Login
         br

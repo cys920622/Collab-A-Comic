@@ -122,12 +122,10 @@ router.get('/logout', function (req, res) {
 function sendConfEmail(req, res) {
     var textbody;
     if (req.body.isContributor == 1) {
-        console.log(req.body.isContributor);
         textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
             "and contributing to comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
     }
     else {
-        console.log(req.body.isContributor);
         textbody = "Hi " + req.body.firstName + ", \nThanks for registering with us! You can now start viewing " +
             "comics at http://collab-a-comic.herokuapp.com. \n\nCheers, \nTeam Friendship";
     }
@@ -200,22 +198,32 @@ router.get('/comic', isLoggedIn, function (req, res) {
 /* GET profile page. */
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
 router.get('/profile', isLoggedIn, function (req, res) {
-    //console.log('USER: ' +req.user);
     res.redirect('/user/' + req.user.username);
 });
 /* GET profile page by dynamic routing */
 // http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
 router.get('/user/:username', isLoggedIn, function (req, res) {
+    function checkSub(profileUsername, viewerSubs) {
+        for (var i = 0; viewerSubs.length > i; i++) {
+            if (viewerSubs[i].followedUserName === profileUsername) {
+                return true;
+            }
+        }
+        return false;
+    }
+    var viewerIsSubbed = checkSub(req.params.username, req.user.following);
     Account.findOne({ username: req.params.username }, function (err, doc) {
         if (err) {
             console.log('User not found.');
         }
         else {
             var account = doc;
-            console.log(doc);
+            //console.log(doc);
             res.render('profile', {
+                isSubbed: viewerIsSubbed,
                 user: doc,
-                comics: doc.contributions
+                comics: doc.contributions,
+                viewer: req.user
             });
         }
     });
@@ -237,7 +245,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         else {
             var comic = doc;
             var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-            console.log(viewerIsSubbed);
+            console.log("Is viewer subbed: " + viewerIsSubbed);
             //console.log('Comic: '+doc);
             //console.log('Searching for :' + req.params.comicid);
             res.render('comic', {
@@ -289,7 +297,7 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
     res.redirect(req.get('referer'));
 });
 // Add new subscriber to comic
-router.post('/:comicid/subscribers/subscribe', function (req, res) {
+router.post('/comic/:comicid/subscribers/subscribe', function (req, res) {
     var cid = req.params.comicid;
     var cTitle = "";
     console.log("Trying to subscribe " + req.user.username + " to " + cid);
@@ -318,7 +326,7 @@ router.post('/:comicid/subscribers/subscribe', function (req, res) {
     res.redirect(req.get('referer'));
 });
 // Remove an existing subscriber from comic
-router.post('/:comicid/subscribers/unsubscribe', function (req, res) {
+router.post('/comic/:comicid/subscribers/unsubscribe', function (req, res) {
     var cid = req.params.comicid;
     console.log("Trying to unsub " + req.user.username + " from " + cid);
     Comic.update({ _id: cid }, { $pull: { subs: { subscriber: req.user.username
@@ -330,6 +338,38 @@ router.post('/:comicid/subscribers/unsubscribe', function (req, res) {
             } } }, function (err) {
         if (err)
             console.log('Error removing subscription!');
+    });
+    res.redirect(req.get('referer'));
+});
+// POST new subscriber to user
+router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function (req, res) {
+    var subscriberUsername = req.user.username;
+    var profileUsername = req.params.profileUsername;
+    console.log(subscriberUsername);
+    console.log(profileUsername);
+    Account.update({ _id: req.user._id }, { $push: { following: { followedUserName: profileUsername } } }, function (err) {
+        console.log("FOLLOWING: " + req.user.following);
+        if (err)
+            console.log("Error adding following!");
+    });
+    Account.update({ username: profileUsername }, { $push: { followers: { followerUserName: subscriberUsername } } }, function (err) {
+        if (err)
+            console.log("Error adding follower!");
+    });
+    res.redirect(req.get('referer'));
+});
+// DELETE existing subscriber from user
+router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, function (req, res) {
+    var subscriberUsername = req.user.username;
+    var profileUsername = req.params.profileUsername;
+    Account.update({ _id: req.user._id }, { $pull: { following: { followedUserName: profileUsername } } }, function (err) {
+        console.log("FOLLOWING: " + req.user.following);
+        if (err)
+            console.log("Error removing following!");
+    });
+    Account.update({ username: profileUsername }, { $pull: { followers: { followerUserName: subscriberUsername } } }, function (err) {
+        if (err)
+            console.log("Error removing follower!");
     });
     res.redirect(req.get('referer'));
 });

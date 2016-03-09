@@ -22,6 +22,12 @@ var Account = new Schema({
     subs: [{
         subCid: String,
         subComicName: String
+    }],
+    followers: [{
+        followerUserName: String
+    }],
+    following: [{
+        followedUserName: String
     }]
 });
 

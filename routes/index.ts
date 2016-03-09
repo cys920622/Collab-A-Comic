@@ -14,6 +14,9 @@ var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
 
 /* GET home page. */
 router.get('/', function (req, res) {
+  if (req.user) {
+    res.redirect('/homepage');
+  }
   res.render('index', {
     user : req.user,
     title : "Collab-a-Comic!"});

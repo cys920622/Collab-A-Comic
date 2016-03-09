@@ -52,12 +52,11 @@ block content
                     }
 
     p List of contributions:
-        br
         each comic in comics
+        br
             - var title = comic.title;
             - var link = '/comic/'+comic.cid;
             a(href=link) #{title}
-            br
 
     - var subscribers = user.followers;
     p Followers:

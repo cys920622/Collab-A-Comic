@@ -10,6 +10,7 @@ var passportLocalMongoose = require('passport-local-mongoose');
 var Account = new Schema({
     firstName: String,
     lastName: String,
+    profilephotopath: String,
     email: String,
     username: String,
     password: String,
@@ -24,10 +25,17 @@ var Account = new Schema({
         subComicName: String
     }],
     followers: [{
-        followerUserName: String
+        followerUserName: String,
+        followerEmail: String
     }],
     following: [{
         followedUserName: String
+    }],
+    notifications: [{
+        notificationText: String,
+        actor: String,
+        comicName: String,
+        notiCid: String
     }]
 });
 

@@ -1,23 +1,14 @@
 //
     Created by oscariu on 2016-02-09.
 link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
 
-extends layout
+include navbar
 
-block content
-    include toolbar
-    h1= title
-    p Welcome #{user.firstName}
-    if (!user)
-        a(href="/login") Login
+h1= title
+p Your notifications:
+    - var notificationArray = user.notifications;
+    each n in notificationArray
         br
-        a(href="/register") Register
-    if (user)
-        p
-        //a(href="/profile") Profile
-        //br
-        //a(href='/')
-            button.btn.btn-primary(type="button") My Profile
-        //a(href="/logout") Logout
-        //a(href='/')
-            button.btn.btn-primary(type="button") Logout
+        - var link = "/comic/"+n.notiCid;
+        a(href=link) #{n.notificationText}

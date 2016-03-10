@@ -23,10 +23,17 @@ var Account = new Schema({
             subComicName: String
         }],
     followers: [{
-            followerUserName: String
+            followerUserName: String,
+            followerEmail: String
         }],
     following: [{
             followedUserName: String
+        }],
+    notifications: [{
+            notificationText: String,
+            actor: String,
+            comicName: String,
+            notiCid: String
         }]
 });
 Account.plugin(passportLocalMongoose);

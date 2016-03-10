@@ -532,7 +532,7 @@ router.get('/search', isLoggedIn, function (req, res) {
 router.post('/comic/:comicid/remove/', function (req, res) {
     var cid = req.params.comicid;
     console.log('cid: ' + cid);
-    var panelloc = req.query.panelloc;
+    var panelloc = req.body.panelloc;
     console.log('panelloc: ' + panelloc);
     console.log("Trying to delete " + panelloc);
     Comic.update({ _id: cid }, { $pull: { imgarray: { panelloc: panelloc

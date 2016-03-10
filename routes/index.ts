@@ -243,6 +243,11 @@ router.get('/user/:username', function (req, res) {
   });
 });
 
+/* GET edit profile page. */
+router.get('/editprofile', function (req, res) {
+  res.render('editprofile', {user: req.user});
+});
+
 router.get('/comic/:comicid', function (req, res) {
   console.log("Looking for comic...");
   Comic.findById(req.params.comicid, function(err, doc) {

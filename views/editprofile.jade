@@ -1,0 +1,70 @@
+//
+   Created by Oscar Iu on 03/03/2016.
+link(href='/css/editprofile.css', rel='stylesheet')
+
+extends layout
+
+block content
+    include toolbar
+    h1= title
+    h1 Edit Profile Page
+    if (!user)
+        a(href="/login") Login
+        br
+        a(href="/register") Register
+
+    if (user.isContributor == 1)
+        #badge [Contributor]
+    if (user.isContributor == 0)
+        #badge [Viewer]
+
+    if (user)
+        h2 Profile Picture
+        br
+        img#image(src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
+        body
+            form(action='demo_post_enctype.asp', method='post', enctype='multipart/form-data')
+                p
+                    input(type="file",name="upl")
+                //delete and integrate upload new image functionality with submit changes button at the very bottom - one button
+                p
+                    input(type="submit", value="Upload new image", onclick= "changeImage()")
+
+        script.
+            function changeImage() {
+                var img = document.getElementById("image");
+                img.src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg";
+                return false;}
+        //button(onclick = 'changeImage()') Upload
+        br
+        p Your information:
+        li Username: #{user.username}
+        li First name: #{user.firstName}
+        li Last name: #{user.lastName}
+        li Email: #{user.email}
+        br
+        form(name="add-estimation", method="post")
+            div.input
+                span.label Title
+                input(type="text", name="title", placeholder="Enter " + "title here")
+            br
+            div.input
+                span.label Description
+                textarea(name="description", cols="40", rows="5", placeholder="Enter " +
+                "a description!")
+            br
+            div.actions
+                //input(type="submit", value="Submit Profile Changes")
+                    //integrate profile image and profile description changes - after clicking, re-direct to profile page with new edits updated
+                button(onclick='globalProfilePageUpdate()') Submit Changes
+                    p#demo
+                    script.
+                        function globalProfilePageUpdate() {
+                            var img = document.getElementById("image");
+                            img.src = "https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg";
+                            return false;
+                            var x;
+                        }
+        br
+        a(href='/user/#{user.username}')
+            button.btn.btn-primary(type="button") Back

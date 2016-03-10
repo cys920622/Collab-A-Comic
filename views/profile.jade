@@ -7,26 +7,43 @@ extends layout
 block content
     include toolbar
     h1= title
-    p #{user.firstName}'s Profile
+    h1 #{user.firstName}'s Profile
     if (!user)
         a(href="/login") Login
         br
         a(href="/register") Register
-    if (user)
-
-        p Your information:
-        li Username: #{user.username}
-        // Display user image - will be fixed for now.
-        img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
-        li First name: #{user.firstName}
-        li Last name: #{user.lastName}
-        li Email: #{user.email}
 
     if (user.isContributor == 1)
         #badge [Contributor]
     if (user.isContributor == 0)
         #badge [Viewer]
 
+    if (user)
+        h2 Profile Picture
+        br
+        // Display user image - will be fixed for now.
+        img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
+        p Your information:
+        li Username: #{user.username}
+        li First name: #{user.firstName}
+        li Last name: #{user.lastName}
+        li Email: #{user.email}
+
+        //only display updated profile description - not editable
+        br
+        form(name="add-estimation", method="post")
+            div.input
+                span.label Title
+                //input(type="text", name="title", placeholder="Title here")
+            br
+            div.input
+                span.label Description
+                //textarea(name="description", cols="40", rows="5")
+        br
+        a(href='/editprofile')
+            button.btn.btn-primary(type="button") Edit Profile
+        br
+        br
         if (user)
             button(onclick='myFunction()') Follow
                 p#demo
@@ -39,7 +56,6 @@ block content
                             x = "You decided not to follow :(";
                         }
                         document.getElementById("demo").innerHTML = x;
-                    }
 
     p List of contributions:
         br
@@ -50,17 +66,6 @@ block content
             br
     p # of subscribers: 0
     p List of subscribers:
-    if (user)
-        form(name="add-estimation", method="post")
-            div.input
-                span.label Title
-                input(type="text", name="title", placeholder="Title here")
-            div.input
-                span.label Description
-                textarea(name="description", cols="40", rows="5", placeholder="Enter " +
-                "a description!")
-            div.actions
-                input(type="submit", value="add")
-    else
-        li#badge [Viewer]
-    a(href="/logout") Logout
+
+    a(href='/logout')
+        button.btn.btn-primary(type="button") Logout

@@ -3,11 +3,13 @@
 
 extends layout
 
+
+
 block content
-    include toolbar
-    h1 #{user.firstName}'s Profile
-    - var profileUsername = user.username;
-    - var viewerUsername = viewer.username;
+    include navbar
+    h1 #{viewed.firstName}'s Profile
+    - var profileUsername = viewed.username;
+    - var viewerUsername = user.username;
     - var isViewerOwner = profileUsername == viewerUsername;
     body
         if !isViewerOwner
@@ -17,26 +19,26 @@ block content
             else
                 form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
                     input(type="submit", value="Subscribe")
-    if (!user)
+    if (!viewed)
         a(href="/login") Login
         br
         a(href="/register") Register
-    if (user)
+    if (viewed)
 
         p Your information:
-        p Username: #{user.username}
+        p Username: #{viewed.username}
         // Display user image - will be fixed for now.
         img(src="http://media1.popsugar-assets.com/files/2013/01/02/4/192/1922398/3df2ea52acfaf1ad_kan.xxxlarge_2.jpg")
-        p First name: #{user.firstName}
-        p Last name: #{user.lastName}
-        p Email: #{user.email}
+        p First name: #{viewed.firstName}
+        p Last name: #{viewed.lastName}
+        p Email: #{viewed.email}
 
-    if (user.isContributor == 1)
+    if (viewed.isContributor == 1)
         #badge [Contributor]
-    if (user.isContributor == 0)
+    if (viewed.isContributor == 0)
         #badge [Viewer]
 
-        if (user)
+        if (viewed)
             button(onclick='myFunction()') Follow
                 p#demo
                 script.
@@ -57,14 +59,14 @@ block content
             - var link = '/comic/'+comic.cid;
             a(href=link) #{title}
 
-    - var subscribers = user.followers;
+    - var subscribers = viewed.followers;
     p Followers:
         each u in subscribers
             br
             - var follower = u.followerUserName;
             a(href='/user/'+follower) #{follower}
 
-    - var followingU = user.following;
+    - var followingU = viewed.following;
     p Following:
         each f in followingU
             br
@@ -73,7 +75,7 @@ block content
 
 
     p Subscriptions:
-        - var subs = user.subs;
+        - var subs = viewed.subs;
         each c in subs
             br
             - var subbedComic = c.subCid;
@@ -81,7 +83,7 @@ block content
             - var cLink = '/comic/'+subbedComic;
             a(href=cLink) #{subTitle}
 
-    if (user)
+    if (viewed)
         form(name="add-estimation", method="post")
             div.input
                 span.label Title

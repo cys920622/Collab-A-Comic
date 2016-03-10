@@ -1,3 +1,26 @@
-//
-   Created by danielchoi on 2016-03-09.
-
+doctype html
+html(lang='en')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
+    nav.navbar.navbar-default.navbar-fixed-top
+        .container-fluid
+            .navbar-header
+                a.navbar-brand(href='/homepage/')
+                    span.glyphicon.glyphicon-edit(aria-hidden='true')
+                    |  Collab-A-Comic!
+            form.navbar-form.navbar-left(method='GET')
+                .form-group
+                    input.form-control(type='text', placeholder='Enter a search', name='q')
+                input.btn.btn-default(type='submit', value='Search')
+            ul.nav.navbar-nav
+                li
+                    a(href='/uploadtest/')
+                        span.glyphicon.glyphicon-plus(aria-hidden='true')
+                        |  Create post
+                li
+                    a(href='/profile/')
+                        span.glyphicon.glyphicon-user(aria-hidden='true')
+                        |  #{user.firstName}
+                li
+                    a(href='/logout/')
+                        span.glyphicon.glyphicon-eject(aria-hidden='true')
+                        |  Logout

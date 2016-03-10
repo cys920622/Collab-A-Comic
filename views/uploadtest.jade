@@ -6,7 +6,7 @@ extends layout
 link(rel='stylesheet', href='css/newcomic.css')
 
 block content
-    include toolbar
+    include navbar
     h1 Create New Comic!
     body
         form(method="post",enctype="multipart/form-data",action="/newcomic")
@@ -16,5 +16,3 @@ block content
                 input(type="file",name="upl")
             p
                 input(type="submit")
-            p
-                img(src=image)

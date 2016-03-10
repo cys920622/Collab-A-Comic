@@ -43,11 +43,11 @@ router.post('/register', function (req, res) {
         });
     });
 });
-/* GET toolbar. */
-// TODO: do we need this?
-router.get('/toolbar', function (req, res) {
-    res.render('toolbar');
-});
+///* GET toolbar. */
+//// TODO: do we need this?
+//router.get('/toolbar', function(req, res) {
+//  res.render('toolbar')
+//});
 /* GET login page. */
 router.get('/login', function (req, res) {
     res.render('login', { user: req.user });
@@ -85,6 +85,7 @@ function isContributor(req, res, next) {
         res.redirect('/#');
     }
 }
+// GET logout
 router.get('/logout', function (req, res) {
     console.log("LOGGING OUT");
     req.logout();
@@ -118,8 +119,9 @@ function sendConfEmail(req, res) {
 }
 // Multer file upload
 /* GET new comic page */
-router.get('/uploadtest', isContributor, function (req, res) {
+router.get('/uploadtest', isLoggedIn, isContributor, function (req, res) {
     res.render('uploadtest', {
+        user: req.user,
         image: 'images/calvinandhobbes.jpg'
     });
     console.log('Current db: ' + req.mongoose.connection);
@@ -207,12 +209,11 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
         else {
             var account = doc;
-            //console.log(doc);
             res.render('profile', {
                 isSubbed: viewerIsSubbed,
-                user: doc,
+                viewed: doc,
                 comics: doc.contributions,
-                viewer: req.user
+                user: req.user
             });
         }
     });
@@ -239,6 +240,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
             //console.log('Comic: '+doc);
             //console.log('Searching for :' + req.params.comicid);
             res.render('comic', {
+                user: req.user,
                 viewerName: req.user.username,
                 cid: req.params.comicid,
                 title: doc.title,

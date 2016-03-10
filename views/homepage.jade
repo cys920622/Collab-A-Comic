@@ -1,16 +1,14 @@
 //
     Created by oscariu on 2016-02-09.
 link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
 
-extends layout
+include navbar
 
-block content
-    include toolbar
-    h1= title
-    p Welcome #{user.firstName}
-    p Your notifications:
-        - var notificationArray = user.notifications;
-        each n in notificationArray
-            br
-            - var link = "/comic/"+n.notiCid;
-            a(href=link) #{n.notificationText}
+h1= title
+p Your notifications:
+    - var notificationArray = user.notifications;
+    each n in notificationArray
+        br
+        - var link = "/comic/"+n.notiCid;
+        a(href=link) #{n.notificationText}

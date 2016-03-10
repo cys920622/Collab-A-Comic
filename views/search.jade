@@ -1,21 +1,35 @@
 //
    Created by Ford on 3/9/16.
 
-extends layout
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
 
-link(rel='stylesheet', href='/stylesheets/newcomic.css')
+include navbar
 
+style.
+    .elt {
+        float: left;
+        padding-right: 50px;
+    }
+    ul.list-group {
+        max-height: 300px;
+        overflow-y: scroll;
+    }
 
-
-block content
-    - var title = title;
-    head
-        include navbar
-    h1 #{comic}
-    p Search results...:
-            br
+body
+    .elt
+        h4 In comics:
+        ul.list-group
             each comic in comics
                 - var title = comic.title;
                 - var link = '/comic/'+comic.id;
-                a(href=link) #{title}
-                br
+                li.list-group-item
+                    a(href=link) #{title}
+    .elt
+        h4 In users:
+        ul.list-group
+            each u in users
+                - var uName = u.username;
+                - var link = '/user/'+uName;
+                li.list-group-item
+                    a(href=link) #{uName}

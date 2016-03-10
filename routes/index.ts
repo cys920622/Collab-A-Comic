@@ -579,21 +579,39 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
   res.redirect(req.get('referer'));
 });
 
-//<<<<<<< HEAD
-//<<<<<<< HEAD
 /* GET searchpage. */
 
 router.get('/search', isLoggedIn, function (req, res) {
   console.log('searching...');
+  var foundComics = [];
+  var foundUsers = [];
   Comic.find({title: {$regex: [req.query.search], $options: 'i'}}, function(err, docs) {
     if (err) {
       console.log('no results.');
     }
     else {
-      console.log(docs);
-      res.render('search', {
-        user: req.user,
-        comics: docs});
+      Account.find({username: {$regex: [req.query.search], $options: 'i'}}, function(err, userNames) {
+        Account.find({firstName: {$regex: [req.query.search], $options: 'i'}}, function(err, firstNames) {
+          Account.find({lastName: {$regex: [req.query.search], $options: 'i'}}, function(err, lastNames) {
+            Account.find({email: {$regex: [req.query.search], $options: 'i'}}, function(err, emails) {
+              Account.find({description: {$regex: [req.query.search], $options: 'i'}}, function(err, descs) {
+                Array.prototype.push.apply(foundComics, docs);
+                Array.prototype.push.apply(foundUsers, userNames);
+                Array.prototype.push.apply(foundUsers, firstNames);
+                Array.prototype.push.apply(foundUsers, lastNames);
+                Array.prototype.push.apply(foundUsers, emails);
+                Array.prototype.push.apply(foundUsers, descs);
+                console.log(foundUsers);
+                res.render('search', {
+                  user: req.user,
+                  comics: foundComics,
+                  users: foundUsers
+                });
+              });
+            });
+          });
+        });
+      });
      }
   });
 });
@@ -603,10 +621,9 @@ router.get('/search', isLoggedIn, function (req, res) {
 router.post('/comic/:comicid/remove/',function(req,res){
 
   var cid = req.params.comicid;
-  console.log('cid: '+cid);
-  var panelloc = req.query.panelloc;
-  console.log('panelloc: '+panelloc);
-  console.log("Trying to delete "+ panelloc);
+  //console.log('cid: '+cid);
+  var panelloc = req.body.panelloc;
+  //console.log("Trying to delete "+ panelloc);
   Comic.update({_id: cid}, {$pull:
   { imgarray: { panelloc: panelloc
   }}}, function (err) {

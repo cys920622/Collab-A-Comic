@@ -21,6 +21,19 @@ var Account = new Schema({
     subs: [{
             subCid: String,
             subComicName: String
+        }],
+    followers: [{
+            followerUserName: String,
+            followerEmail: String
+        }],
+    following: [{
+            followedUserName: String
+        }],
+    notifications: [{
+            notificationText: String,
+            actor: String,
+            comicName: String,
+            notiCid: String
         }]
 });
 Account.plugin(passportLocalMongoose);

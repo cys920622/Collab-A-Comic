@@ -13,10 +13,10 @@ block content
     h1 #{title}
     body
         if isSubbed
-            form(method="post",action='/'+comicid+'/subscribers/unsubscribe/')
+            form(method="post",action='/comic/'+comicid+'/subscribers/unsubscribe/')
                 input(type="submit", value="Unsubscribe")
         else
-            form(method="post",action='/' + comicid + '/subscribers/subscribe/')
+            form(method="post",action='/comic/' + comicid + '/subscribers/subscribe/')
                 input(type="submit", value="Subscribe")
 
 

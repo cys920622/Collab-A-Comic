@@ -1,13 +1,22 @@
 //
    Created by danielchoi on 2016-02-08.
-link(href='/stylesheets/profile.css', rel='stylesheet')
 
 extends layout
 
 block content
     include toolbar
-    h1= title
-    p #{user.firstName}'s Profile
+    h1 #{user.firstName}'s Profile
+    - var profileUsername = user.username;
+    - var viewerUsername = viewer.username;
+    - var isViewerOwner = profileUsername == viewerUsername;
+    body
+        if !isViewerOwner
+            if isSubbed
+                form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
+                    input(type="submit", value="Unsubscribe")
+            else
+                form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
+                    input(type="submit", value="Subscribe")
     if (!user)
         a(href="/login") Login
         br
@@ -15,7 +24,7 @@ block content
     if (user)
 
         p Your information:
-        li Username: #{user.username}
+        p Username: #{user.username}
         h3 Profile Picture
         img(src=profilephotopath, width='400')
         // Display user image - will be fixed for now.
@@ -32,9 +41,10 @@ block content
                 p
                     img(src=image)
 
-        li First name: #{user.firstName}
-        li Last name: #{user.lastName}
-        li Email: #{user.email}
+        p First name: #{user.firstName}
+        p Last name: #{user.lastName}
+        p Email: #{user.email}
+
 
     if (user.isContributor == 1)
         #badge [Contributor]
@@ -56,26 +66,36 @@ block content
                     }
 
     p List of contributions:
-        br
         each comic in comics
+            br
             - var title = comic.title;
             - var link = '/comic/'+comic.cid;
             a(href=link) #{title}
-            br
 
-    p # of subscribers: 0
+    - var subscribers = user.followers;
+    p Followers:
+        each u in subscribers
+            br
+            - var follower = u.followerUserName;
+            a(href='/user/'+follower) #{follower}
+
+    - var followingU = user.following;
+    p Following:
+        each f in followingU
+            br
+            - var fUname = f.followedUserName;
+            a(href='/user/' + fUname) #{fUname}
 
 
     p Subscriptions:
         - var subs = user.subs;
         each c in subs
+            br
             - var subbedComic = c.subCid;
             - var subTitle = c.subComicName;
             - var cLink = '/comic/'+subbedComic;
             a(href=cLink) #{subTitle}
-            br
 
-    p List of subscribers:
     if (user)
         form(name="add-estimation", method="post")
             div.input

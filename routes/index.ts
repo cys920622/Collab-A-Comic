@@ -202,12 +202,6 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
 
 });
 
-<<<<<<< HEAD
-
-
-=======
-// TODO: what is this doing here?
->>>>>>> 3f390c2fa700361007d64c0677b3d13a076a6eea
 router.get('/comic', isLoggedIn, function(req, res){
   res.render('comic', {
   })
@@ -237,7 +231,6 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
     if (err) {
       console.log('User not found.');
     } else {
-<<<<<<< HEAD
       Profile.findOne({"_id": doc.profileid}, function(err, profiledoc) {
         if (err) {
           console.log("Profile photo not found.");

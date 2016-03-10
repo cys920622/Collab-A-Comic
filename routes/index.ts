@@ -579,8 +579,7 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
   res.redirect(req.get('referer'));
 });
 
-//<<<<<<< HEAD
-//<<<<<<< HEAD
+
 /* GET searchpage. */
 
 router.get('/search', isLoggedIn, function (req, res) {
@@ -599,11 +598,15 @@ router.get('/search', isLoggedIn, function (req, res) {
 });
 
 
-// Delete a panel from comic strip
-router.post('/comic/:comicid/remove/',function(req,res){
+//Get remove page
+router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
+  res.render('/comic/:comicid/remote/');
+});
 
+//Delete a panel from comic strip
+router.post('/comic/:comicid/remove/',function(req,res){
   var cid = req.params.comicid;
-  console.log('cid: '+cid);
+  //console.log('cid: '+cid);
   var panelloc = req.query.panelloc;
   console.log('panelloc: '+panelloc);
   console.log("Trying to delete "+ panelloc);
@@ -617,8 +620,7 @@ router.post('/comic/:comicid/remove/',function(req,res){
   }}}, function (err) {
     if (err) console.log('Error removing contribution!');
   });
-  res.redirect(req.get('referer'));
+  res.redirect('/user/'+req.user.username);
 });
 
-//>>>>>>> 3236a20f1bc1805a32f42ec19c3ded963603a336
 module.exports = router;

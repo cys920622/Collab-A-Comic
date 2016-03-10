@@ -511,8 +511,7 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     });
     res.redirect(req.get('referer'));
 });
-//<<<<<<< HEAD
-//<<<<<<< HEAD
+
 /* GET searchpage. */
 router.get('/search', isLoggedIn, function (req, res) {
     console.log('searching...');
@@ -528,25 +527,31 @@ router.get('/search', isLoggedIn, function (req, res) {
         }
     });
 });
-// Delete a panel from comic strip
-router.post('/comic/:comicid/remove/', function (req, res) {
-    var cid = req.params.comicid;
-    console.log('cid: ' + cid);
-    var panelloc = req.query.panelloc;
-    console.log('panelloc: ' + panelloc);
-    console.log("Trying to delete " + panelloc);
-    Comic.update({ _id: cid }, { $pull: { imgarray: { panelloc: panelloc
-            } } }, function (err) {
-        if (err)
-            console.log('Error removing panel!');
-    });
-    Account.update({ _id: req.user._id }, { $pull: { contributions: { cid: cid
-            } } }, function (err) {
-        if (err)
-            console.log('Error removing contribution!');
-    });
-    res.redirect(req.get('referer'));
+
+//Get remove page
+router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
+    res.render('/comic/:comicid/remote/');
 });
-//>>>>>>> 3236a20f1bc1805a32f42ec19c3ded963603a336
+
+//Delete a panel from comic strip
+router.post('/comic/:comicid/remove/',function(req,res){
+    var cid = req.params.comicid;
+    //console.log('cid: '+cid);
+    var panelloc = req.query.panelloc;
+    console.log('panelloc: '+panelloc);
+    console.log("Trying to delete "+ panelloc);
+    Comic.update({_id: cid}, {$pull:
+    { imgarray: { panelloc: panelloc
+    }}}, function (err) {
+        if (err) console.log('Error removing panel!');
+    });
+    Account.update({_id: req.user._id}, {$pull:
+    { contributions: { cid: cid
+    }}}, function (err) {
+        if (err) console.log('Error removing contribution!');
+    });
+    res.redirect('/user/'+req.user.username);
+});
+
 module.exports = router;
 //# sourceMappingURL=index.js.map

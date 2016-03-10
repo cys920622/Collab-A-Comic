@@ -230,40 +230,32 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
   Account.findOne({username: req.params.username}, function(err, doc) {
     if (err) {
       console.log('User not found.');
-    } else {
-      Profile.findOne({"_id": doc.profileid}, function(err, profiledoc) {
-        if (err) {
-          console.log("Profile photo not found.");
-        }
-        else {
-          var account = doc;
-          console.log(doc);
+        } else {
+          //var account = doc;
+          //console.log(doc);
                 res.render('profile', {
                   isSubbed: viewerIsSubbed,
                   user: doc,
                   comics: doc.contributions,
-                  profilephotopath: profiledoc.picloc,
+                  profilephotopath: doc.profilephotopath,
                   viewer: req.user
                 });
           }
-
         }
-      )}
-    }
-  )}
-)
+      )})
+
 
 /* POST new profile picture to profile */
 router.post('/profile', isLoggedIn, multer({ dest: './uploads/' }).single('upl'), function (req, res) {
 
-  var p = new Profile({
-    originalname: req.file.originalname,
-    filename: req.file.filename,
-    picloc: './uploads/'+req.file.filename,
-    path: req.file.path,
-  });
+  //var p = new Profile({
+  //  originalname: req.file.originalname,
+  //  filename: req.file.filename,
+  //  picloc: './uploads/'+req.file.filename,
+  //  path: req.file.path,
+  //});
 
-  p.save();
+  //p.save();
 
   //Account.update({_id: req.user._id}, {$set:
   //{ profileid: p.id
@@ -275,7 +267,7 @@ router.post('/profile', isLoggedIn, multer({ dest: './uploads/' }).single('upl')
       {_id: req.user._id},
       {$set:
       {
-        profileid: p.id
+        profilephotopath: './uploads/'+req.file.filename
       }},
       function(err) {
         if (err) console.log("Error adding profile picture!");
@@ -535,6 +527,23 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
         if (err) console.log("Error removing follower!");
   });
 
+  res.redirect(req.get('referer'));
+});
+
+// Delete a comic strip
+router.post('/comic/:comicid/remove',function(req,res){
+  var cid = req.params.comicid;
+  console.log("Trying to delete "+ cid);
+  Comic.update({_id: cid}, {$pull:
+  { subs: { subscriber: req.user.username
+  }}}, function (err) {
+    if (err) console.log('Error removing subscriber!');
+  });
+  Account.update({_id: req.user._id}, {$pull:
+  { subs: { subCid: cid
+  }}}, function (err) {
+    if (err) console.log('Error removing subscription!');
+  });
   res.redirect(req.get('referer'));
 });
 

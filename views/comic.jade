@@ -27,6 +27,9 @@ block content
             img(src=panel.panelloc, width='400')
             p.
                 By #[a(href=authorlink) #{author}]
+            if (author)
+                form(method="post", action='/comic/' + comicid + '/remove')
+                    input(type="submit", value="Remove")
             br
 
     body

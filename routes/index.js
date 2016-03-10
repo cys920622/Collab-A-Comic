@@ -3,11 +3,11 @@ var passport = require('passport');
 var app = require('../app.ts');
 var Account = require('../models/account.ts');
 var Comic = require('../models/comic.ts');
-var Profile = require ('../models/profile.ts');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
+var Profile = require('../models/profile.ts');
 //var db = app.mongoose.connection;
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -44,11 +44,11 @@ router.post('/register', function (req, res) {
         });
     });
 });
-/* GET toolbar. */
-// TODO: do we need this?
-router.get('/toolbar', function (req, res) {
-    res.render('toolbar');
-});
+///* GET toolbar. */
+//// TODO: do we need this?
+//router.get('/toolbar', function(req, res) {
+//  res.render('toolbar')
+//});
 /* GET login page. */
 router.get('/login', function (req, res) {
     res.render('login', { user: req.user });
@@ -86,6 +86,7 @@ function isContributor(req, res, next) {
         res.redirect('/#');
     }
 }
+// GET logout
 router.get('/logout', function (req, res) {
     console.log("LOGGING OUT");
     req.logout();
@@ -119,8 +120,9 @@ function sendConfEmail(req, res) {
 }
 // Multer file upload
 /* GET new comic page */
-router.get('/uploadtest', isContributor, function (req, res) {
+router.get('/uploadtest', isLoggedIn, isContributor, function (req, res) {
     res.render('uploadtest', {
+        user: req.user,
         image: 'images/calvinandhobbes.jpg'
     });
     console.log('Current db: ' + req.mongoose.connection);
@@ -181,7 +183,6 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/' }
     });
     res.redirect('/comic/' + c.id);
 });
-// TODO: what is this doing here?
 router.get('/comic', isLoggedIn, function (req, res) {
     res.render('comic', {});
 });
@@ -189,10 +190,7 @@ router.get('/comic', isLoggedIn, function (req, res) {
 // https://scotch.io/tutorials/easy-node-authentication-setup-and-local
 router.get('/profile', isLoggedIn, function (req, res) {
     res.redirect('/user/' + req.user.username);
-    //console.log('Current db: ' + req.mongoose.connection);
-    //res.render('/profile');
 });
-
 /* GET profile page by dynamic routing */
 // http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
 router.get('/user/:username', isLoggedIn, function (req, res) {
@@ -210,15 +208,39 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
             console.log('User not found.');
         }
         else {
-            var account = doc;
+            //var account = doc;
             //console.log(doc);
             res.render('profile', {
                 isSubbed: viewerIsSubbed,
-                user: doc,
+                viewed: doc,
                 comics: doc.contributions,
-                viewer: req.user
+                user: req.user,
+                profilephoto: doc.profilephotopath
             });
         }
+    });
+});
+/* POST new profile picture to profile */
+router.post('/profile', isLoggedIn, multer({ dest: './public/uploads/profilepictures/' }).single('upl'), function (req, res) {
+    //var p = new Profile({
+    //  originalname: req.file.originalname,
+    //  filename: req.file.filename,
+    //  picloc: './uploads/'+req.file.filename,
+    //  path: req.file.path,
+    //});
+    //p.save();
+    //Account.update({_id: req.user._id}, {$set:
+    //{ profileid: p.id
+    //}}, function (err) {
+    //  if (err) console.log("Error adding profile photo!");
+    //});
+    Account.update({ _id: req.user._id }, { $set: {
+            profilephotopath: '/uploads/profilepictures/' + req.file.filename
+        } }, function (err) {
+        if (err)
+            console.log("Error adding profile picture!");
+        console.log('PP path: /uploads/profilepictures/' + req.file.filename);
+        res.redirect('/user/' + req.user.username);
     });
 });
 // GET comic page
@@ -243,6 +265,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
             //console.log('Comic: '+doc);
             //console.log('Searching for :' + req.params.comicid);
             res.render('comic', {
+                user: req.user,
                 viewerName: req.user.username,
                 cid: req.params.comicid,
                 title: doc.title,
@@ -253,7 +276,6 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         }
     });
 });
-
 // Function to send notification emails
 function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, cid, notificationType) {
     var textbody;
@@ -312,7 +334,6 @@ function createNotification(recipUsername, actorUsername, comic, cid, notificati
             console.log("Error adding follower!");
     });
 }
-
 /* POST new panel to comic */
 router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).single('upl'), function (req, res) {
     var cid = req.params.comicid;
@@ -446,6 +467,22 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     Account.update({ username: profileUsername }, { $pull: { followers: { followerUserName: subscriberUsername } } }, function (err) {
         if (err)
             console.log("Error removing follower!");
+    });
+    res.redirect(req.get('referer'));
+});
+// Delete a comic strip
+router.post('/comic/:comicid/remove', function (req, res) {
+    var cid = req.params.comicid;
+    console.log("Trying to delete " + cid);
+    Comic.update({ _id: cid }, { $pull: { subs: { subscriber: req.user.username
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing subscriber!');
+    });
+    Account.update({ _id: req.user._id }, { $pull: { subs: { subCid: cid
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing subscription!');
     });
     res.redirect(req.get('referer'));
 });

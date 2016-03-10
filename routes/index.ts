@@ -48,11 +48,11 @@ router.post('/register', function(req, res) {
   });
 });
 
-/* GET toolbar. */
-// TODO: do we need this?
-router.get('/toolbar', function(req, res) {
-  res.render('toolbar')
-});
+///* GET toolbar. */
+//// TODO: do we need this?
+//router.get('/toolbar', function(req, res) {
+//  res.render('toolbar')
+//});
 
 
 /* GET login page. */
@@ -97,7 +97,7 @@ function isContributor(req, res, next) {
   }
 }
 
-
+// GET logout
 router.get('/logout', function (req, res) {
   console.log("LOGGING OUT");
   req.logout();
@@ -132,8 +132,9 @@ function sendConfEmail(req, res) {
 
 // Multer file upload
 /* GET new comic page */
-router.get('/uploadtest', isContributor, function(req, res){
+router.get('/uploadtest', isLoggedIn, isContributor, function(req, res){
   res.render('uploadtest', {
+    user: req.user,
     image: 'images/calvinandhobbes.jpg'
   });
   console.log('Current db: '+req.mongoose.connection);
@@ -235,10 +236,10 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
           //console.log(doc);
                 res.render('profile', {
                   isSubbed: viewerIsSubbed,
-                  user: doc,
+                  viewed: doc,
                   comics: doc.contributions,
-                  profilephotopath: doc.profilephotopath,
-                  viewer: req.user
+                  user: req.user,
+                  profilephoto: doc.profilephotopath,
                 });
           }
         }
@@ -246,7 +247,7 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
 
 
 /* POST new profile picture to profile */
-router.post('/profile', isLoggedIn, multer({ dest: './uploads/' }).single('upl'), function (req, res) {
+router.post('/profile', isLoggedIn, multer({ dest: './public/uploads/profilepictures/' }).single('upl'), function (req, res) {
 
   //var p = new Profile({
   //  originalname: req.file.originalname,
@@ -267,15 +268,14 @@ router.post('/profile', isLoggedIn, multer({ dest: './uploads/' }).single('upl')
       {_id: req.user._id},
       {$set:
       {
-        profilephotopath: './uploads/'+req.file.filename
+        profilephotopath: '/uploads/profilepictures/'+req.file.filename
       }},
       function(err) {
         if (err) console.log("Error adding profile picture!");
-        console.log('meow');
+        console.log('PP path: /uploads/profilepictures/'+req.file.filename);
         res.redirect('/user/'+req.user.username);
       }
   )
-
 });
 
 // GET comic page
@@ -299,6 +299,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
       //console.log('Comic: '+doc);
       //console.log('Searching for :' + req.params.comicid);
       res.render('comic', {
+        user: req.user,
         viewerName: req.user.username,
         cid: req.params.comicid,
         title: doc.title,

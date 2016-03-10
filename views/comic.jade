@@ -7,7 +7,7 @@ link(rel='stylesheet', href='/stylesheets/newcomic.css')
 
 
 block content
-    include toolbar
+    include navbar
     - var comicid = cid;
     - var viewer = viewerName;
     h1 #{title}
@@ -49,5 +49,3 @@ block content
                 input(type="file",name="upl")
             p
                 input(type="submit")
-            p
-                img(src=image)

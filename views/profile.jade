@@ -11,8 +11,12 @@ style.
         padding-right: 50px;
     }
     ul.list-group {
-        max-height: 300px;
+        width: 300px;
+        max-height: 250px;
         overflow-y: scroll;
+    }
+    .panel.panel-default {
+        width: 300px;
     }
 
 body
@@ -22,26 +26,10 @@ body
         - var viewerUsername = user.username;
         - var isViewerOwner = profileUsername == viewerUsername;
 
-        body
-            if !isViewerOwner
-                if isSubbed
-                    form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
-                        input.btn.btn-default(type="submit", value="Unsubscribe")
-                else
-                    form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
-                        input.btn.btn-default(type="submit", value="Subscribe")
 
         img(src=profilephoto, width='300')
 
-        if isViewerOwner
-            body
-                form(method="post",enctype="multipart/form-data",action="/profile")
-                    p
-                        input.btn.btn-default.btn-(type="file",name="upl")
-                    p
-                        input.btn.btn-default(type="submit")
-                    p
-                        img(src=image)
+
 
         h4 Basic information
         ul.list-group
@@ -87,8 +75,8 @@ body
 
         h4 Subscriptions:
         ul.list-group
-            - var subs = viewed.subs;
-            each c in subs
+            - var subscriptions = viewed.subs;
+            each c in subscriptions
                 - var subbedComic = c.subCid;
                 - var subTitle = c.subComicName;
                 - var cLink = '/comic/'+subbedComic;
@@ -97,11 +85,12 @@ body
 
         if (viewed)
             h4 Description:
-            form(name="add-estimation", method="post")
-                p
-                    input.form-control(type="text", name="title", placeholder="Title here")
-                p
-                    textarea.form-control(name="description", cols="40", rows="3", placeholder="Enter " +
-                    "a description!")
-                p
-                    input.btn.btn-default(type="submit", value="Update")
+            - var descripString = viewed.description;
+            body
+                .panel.panel-default
+                    .panel-body
+                        | #{descripString}
+        if isViewerOwner
+            body
+                a(href='/user/' + user.username + '/edit')
+                    button.btn.btn-default(type="button") Edit profile

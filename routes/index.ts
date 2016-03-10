@@ -35,7 +35,8 @@ router.post('/register', function(req, res) {
     lastName : req.body.lastName,
     username : req.body.username,
     email : req.body.email,
-    isContributor: req.body.isContributor
+    isContributor: req.body.isContributor,
+    description : req.body.description
   }), req.body.password, function(err, account) {
     if (err) {
       return res.render('register', { account : account });
@@ -243,7 +244,54 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
                 });
           }
         }
-      )})
+)});
+
+// GET profile editing page
+router.get('/user/:username/edit', isLoggedIn, function (req, res) {
+  // Redirect user if requesting to change another person's profile
+  if (req.user.username != req.params.username) {
+    res.redirect('/');
+  }
+  res.render('editprofile', {
+    user: req.user
+  })
+});
+
+// POST profile edits
+router.post('/user/:username/edit', isLoggedIn, function (req, res) {
+  var newFirstName = req.user.firstName;
+  var newLastName = req.user.lastName;
+  var newEmail = req.user.email;
+  var newDescrip = req.user.description;
+  // Take on new values if form was filled
+  if (req.body.firstName) {
+    newFirstName = req.body.firstName;
+  }
+  if (req.body.lastName) {
+    newLastName = req.body.lastName;
+  }
+  if (req.body.email) {
+    newEmail = req.body.email;
+  }
+  if (req.body.description) {
+    newDescrip = req.body.description;
+  }
+  Account.update(
+      {_id: req.user._id},
+
+      {$set:
+      {
+        firstName: newFirstName,
+        lastName: newLastName,
+        email: newEmail,
+        description: newDescrip
+      }},
+      function(err) {
+        if (err) console.log("Error editing profile!");
+        res.redirect('/user/'+req.user.username);
+      }
+  )
+});
 
 
 /* POST new profile picture to profile */

@@ -33,6 +33,9 @@ body
                 input.form-control(type='text', name="username", placeholder='Username')
             .form-group
                 input.form-control(type='password', name="password", placeholder='Password')
+            .form-group
+                textarea.form-control(name="description", cols="40", rows="3",
+                placeholder='Enter a description')
             .form-group Account type:
                 select(name="isContributor")
                     option(value=1) Contributor

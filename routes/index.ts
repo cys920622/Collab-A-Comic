@@ -7,6 +7,7 @@ var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
+var Profile = require('../models/profile.ts');
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -217,6 +218,8 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
 
 });
 
+
+
 router.get('/comic', isLoggedIn, function(req, res){
   res.render('comic', {
   })
@@ -236,15 +239,59 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
     if (err) {
       console.log('User not found.');
     } else {
-      var account = doc;
-      console.log(doc);
-      res.render('profile', {
-        user: doc,
-        comics: doc.contributions
-      });
+      Profile.findOne({"_id": doc.profileid}, function(err, profiledoc) {
+        if (err) {
+          console.log("Profile photo not found.");
+        }
+        else {
+          var account = doc;
+          console.log(doc);
+                res.render('profile', {
+                  user: doc,
+                  comics: doc.contributions,
+                  profilephotopath: profiledoc.picloc
+                });
+          }
+
+        }
+      )}
     }
+  )}
+)
+
+/* POST new profile picture to profile */
+router.post('/profile', isLoggedIn, multer({ dest: './uploads/' }).single('upl'), function (req, res) {
+
+  var p = new Profile({
+    originalname: req.file.originalname,
+    filename: req.file.filename,
+    picloc: './uploads/'+req.file.filename,
+    path: req.file.path,
   });
+
+  p.save();
+
+  //Account.update({_id: req.user._id}, {$set:
+  //{ profileid: p.id
+  //}}, function (err) {
+  //  if (err) console.log("Error adding profile photo!");
+  //});
+
+  Account.update(
+      {_id: req.user._id},
+      {$set:
+      {
+        profileid: p.id
+      }},
+      function(err) {
+        if (err) console.log("Error adding profile picture!");
+        console.log('meow');
+        res.redirect('/user/'+req.user.username);
+      }
+  )
+
 });
+
 
 router.get('/comic/:comicid', isLoggedIn, function (req, res) {
   console.log("Looking for comic...");

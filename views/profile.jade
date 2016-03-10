@@ -16,8 +16,22 @@ block content
 
         p Your information:
         li Username: #{user.username}
+        h3 Profile Picture
+        img(src=profilephotopath, width='400')
         // Display user image - will be fixed for now.
-        img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
+        //img(src="https://s-media-cache-ak0.pinimg.com/236x/52/5e/c0/525ec0f7d4ddb429ad28e9fb03e3761f.jpg")
+
+        body
+            form(method="post",enctype="multipart/form-data",action="/profile")
+                //p
+                //    input(type="text",name="title",placeholder="Your comic's title")
+                p
+                    input(type="file",name="upl")
+                p
+                    input(type="submit")
+                p
+                    img(src=image)
+
         li First name: #{user.firstName}
         li Last name: #{user.lastName}
         li Email: #{user.email}

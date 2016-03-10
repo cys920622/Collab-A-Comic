@@ -3,6 +3,7 @@ var passport = require('passport');
 var app = require('../app.ts');
 var Account = require('../models/account.ts');
 var Comic = require('../models/comic.ts');
+var Profile = require ('../models/profile.ts');
 var router = express.Router();
 var postmark = require("postmark");
 var multer = require('multer');
@@ -202,7 +203,10 @@ router.get('/comic', isLoggedIn, function (req, res) {
 router.get('/profile', isLoggedIn, function (req, res) {
     //console.log('USER: ' +req.user);
     res.redirect('/user/' + req.user.username);
+    //console.log('Current db: ' + req.mongoose.connection);
+    //res.render('/profile');
 });
+
 /* GET profile page by dynamic routing */
 // http://stackoverflow.com/questions/33347395/how-to-create-a-profile-url-in-nodejs-like-facebook
 router.get('/user/:username', isLoggedIn, function (req, res) {
@@ -251,6 +255,52 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         }
     });
 });
+
+//router.get('/profile', function(req, res) {
+//    res.render('/'/user/' + req.user.username');
+//    //console.log('Current db: ' + req.mongoose.connection);
+//});
+
+/* POST new profile picture to profile */
+router.post('/profile', multer({ dest: './uploads/' }).single('upl'), function (req, res) {
+    //var pid = req.params.profileid;
+    //var picloc = '/uploads/profile/' + req.file.filename;
+    //Profile.update({ _id: pid}, { $push: { imgarray: {
+    //    picloc:  imgloc
+    //} } }, function (err) {
+    //    if (err)
+    //        console.log('Error loading profile picture!');
+    //});
+    //res.redirect(req.get('referer'));
+    console.log(req.body);
+    /* example output:
+     { title: 'abc' }
+     */
+    console.log(req.file);
+
+    //var profile = new Profile({
+    //    originalname: req.file.originalname,
+    //    filename: req.file.filename,
+    //    imgarray: [{
+    //        picloc: './uploads/' + req.file.filename
+    //    }],
+    //    path: req.file.path,
+    //});
+    //profile.save();
+
+    //    getprofile(req, profile));
+    //function getprofile(req, p) {
+    //    console.log('Profile_id: ' + p.id);
+    //
+    //    res.render('profile', {
+    //        image: p.link
+    //    });
+
+    //res.render('/profile');
+    res.status(204).end();
+});
+
+
 /* POST new panel to comic */
 router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).single('upl'), function (req, res) {
     var cid = req.params.comicid;

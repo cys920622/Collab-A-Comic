@@ -1,20 +1,35 @@
 // Passport tutorial: http://bit.ly/1TNXvgG
    Created by danielchoi on 2016-02-08.
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
+link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
 
-extends layout
+style.
+    .elt {
+        float: left;
+    }
 
-block content
-    .container
-        h1 Login Page
-        p.lead Please enter your login information
-        br
-        form(role='form', action="/login",method="post", stype='max-width: 300px;')
-            .form-group
+nav.navbar.navbar-default.navbar-fixed-top
+    .container-fluid
+        .navbar-header
+            a.navbar-brand(href='/')
+                span.glyphicon.glyphicon-edit(aria-hidden='true')
+                |  Collab-A-Comic!
+br
+
+
+body
+    .elt
+        h4 Enter your login information
+        form(role='form', action="/login",method="post")
+            p
                 input.form-control(type='text', name="username", placeholder='Enter Username')
-            .form-group
+            p
                 input.form-control(type='password', name="password", placeholder='Enter Password')
-            button.btn.btn-default(type='submit') Submit
+            button.btn.btn-primary(type='submit') Submit
+            p
+                a(href='/')
+                    button.btn.btn-default(type="button") Cancel
 
 
-    a(href='/')
-        button.btn.btn-primary(type="button") Cancel
+

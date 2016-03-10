@@ -9,8 +9,8 @@ html(lang='en')
                     |  Collab-A-Comic!
             form.navbar-form.navbar-left(action='/search')
                 .form-group
-                        input(type='text', name='search', placeholder='Search collab-a-comic', formmethod='getAllResponseHeaders()')
-                        input(type='submit', value='Go!')
+                        input.form-control(type='text', name='search', placeholder='Search Collab-A-Comic!', formmethod='getAllResponseHeaders()')
+                        inputbtn.btn-default(type='submit', value='Go!')
             ul.nav.navbar-nav
                 li
                     a(href='/uploadtest/')

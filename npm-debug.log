@@ -1,14 +1,14 @@
 0 info it worked if it ends with ok
 1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'start' ]
 2 info using npm@3.3.12
-3 info using node@v5.4.1
+3 info using node@v5.4.0
 4 verbose run-script [ 'prestart', 'start', 'poststart' ]
 5 info lifecycle comic@0.0.0~prestart: comic@0.0.0
 6 silly lifecycle comic@0.0.0~prestart: no script for prestart, continuing
 7 info lifecycle comic@0.0.0~start: comic@0.0.0
 8 verbose lifecycle comic@0.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle comic@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/Ford/Documents/softeng/node_modules/.bin:/Users/Ford/anaconda/bin:/Users/Ford/anaconda/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/Users/Ford/Desktop
-10 verbose lifecycle comic@0.0.0~start: CWD: /Users/Ford/Documents/softeng
+9 verbose lifecycle comic@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/danielchoi/Dropbox/Developer/node/comic/node_modules/.bin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/Library/Frameworks/Python.framework/Versions/3.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/local/git/bin:/Library/TeX/texbin
+10 verbose lifecycle comic@0.0.0~start: CWD: /Users/danielchoi/Dropbox/Developer/node/comic
 11 silly lifecycle comic@0.0.0~start: Args: [ '-c', 'node ./bin/www' ]
 12 silly lifecycle comic@0.0.0~start: Returned: code: 1  signal: null
 13 info lifecycle comic@0.0.0~start: Failed to exec start script
@@ -23,10 +23,10 @@
 14 verbose stack     at maybeClose (internal/child_process.js:821:16)
 14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
 15 verbose pkgid comic@0.0.0
-16 verbose cwd /Users/Ford/Documents/softeng
+16 verbose cwd /Users/danielchoi/Dropbox/Developer/node/comic
 17 error Darwin 15.3.0
 18 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start"
-19 error node v5.4.1
+19 error node v5.4.0
 20 error npm  v3.3.12
 21 error code ELIFECYCLE
 22 error comic@0.0.0 start: `node ./bin/www`

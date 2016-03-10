@@ -1,12 +1,26 @@
 // Passport tutorial: http://bit.ly/1TNXvgG
    Created by danielchoi on 2016-02-08.
 
-extends layout
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
+link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
 
-block content
-    .container
-        h1 Sign up!
-        p.lead Say something worthwhile here.
+style.
+    .elt {
+        float: left;
+    }
+
+nav.navbar.navbar-default.navbar-fixed-top
+    .container-fluid
+        .navbar-header
+            a.navbar-brand(href='/')
+                span.glyphicon.glyphicon-edit(aria-hidden='true')
+                |  Collab-A-Comic!
+br
+
+body
+    .elt
+        h4 Sign up!
         br
         form(role='form', action="/register",method="post", style='max-width: 300px;')
             .form-group
@@ -16,13 +30,14 @@ block content
             .form-group
                 input.form-control(type='text', name="email", placeholder='Email')
             .form-group
-                input.form-control(type='text', name="username", placeholder='Enter Username')
+                input.form-control(type='text', name="username", placeholder='Username')
             .form-group
                 input.form-control(type='password', name="password", placeholder='Password')
             .form-group Account type:
                 select(name="isContributor")
                     option(value=1) Contributor
                     option(value=0) Viewer
-            button.btn.btn-default(type='submit') Submit
-    a(href='/')
-        button.btn.btn-primary(type="button") Cancel
+            button.btn.btn-primary(type='submit') Submit
+        p
+            a(href='/')
+                button.btn.btn-default(type="button") Cancel

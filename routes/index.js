@@ -471,68 +471,38 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     res.redirect(req.get('referer'));
 });
 //<<<<<<< HEAD
-
-
-
-
-
-///* GET searchpage. */
-//router.get('/search', isLoggedIn, function (req, res) {
-//    res.render('search');
-//    console.log('searching....');
-//    Comic.findOne({ }, function (err, doc) {
-//        if (err) {
-//            console.log('no results.');
-//        }
-//        else {
-//            var comic = doc;
-//            console.log("what's up fatlip");
-//            res.render('comic', {
-//                viewerName: req.user.username,
-//                            cid: req.params.comicid,
-//                            title: doc.title,
-//                            panelarray: doc.imgarray,
-//                            subscribers: doc.subs,
-//                            isSubbed: viewerIsSubbed
-//            });
-//        }
-//    });
-//    //Comic.findById(req.params.comicid, function (err, doc) {
-//    //    if (err) {
-//    //        console.log('Comic not found.');
-//    //    }
-//    //    else {
-//    //        var comic = doc;
-//    //        var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-//    //        console.log("Is viewer subbed: " + viewerIsSubbed);
-//    //        //console.log('Comic: '+doc);
-//    //        //console.log('Searching for :' + req.params.comicid);
-//    //        res.render('comic', {
-//    //            viewerName: req.user.username,
-//    //            cid: req.params.comicid,
-//    //            title: doc.title,
-//    //            panelarray: doc.imgarray,
-//    //            subscribers: doc.subs,
-//    //            isSubbed: viewerIsSubbed
-//    //        });
-//    //    }
-//    //});
-//});
-//
-//=======
-// Delete a comic strip
-router.post('/comic/:comicid/remove', function (req, res) {
-    var cid = req.params.comicid;
-    console.log("Trying to delete " + cid);
-    Comic.update({ _id: cid }, { $pull: { subs: { subscriber: req.user.username
-            } } }, function (err) {
-        if (err)
-            console.log('Error removing subscriber!');
+//<<<<<<< HEAD
+/* GET searchpage. */
+router.get('/search', isLoggedIn, function (req, res) {
+    console.log('searching...');
+    Comic.find({ title: { $regex: [req.query.search], $options: 'i' } }, function (err, docs) {
+        if (err) {
+            console.log('no results.');
+        }
+        else {
+            console.log(docs);
+            res.render('search', {
+                user: req.user,
+                comics: docs });
+        }
     });
-    Account.update({ _id: req.user._id }, { $pull: { subs: { subCid: cid
+});
+// Delete a panel from comic strip
+router.post('/comic/:comicid/remove/', function (req, res) {
+    var cid = req.params.comicid;
+    console.log('cid: ' + cid);
+    var panelloc = req.query.panelloc;
+    console.log('panelloc: ' + panelloc);
+    console.log("Trying to delete " + panelloc);
+    Comic.update({ _id: cid }, { $pull: { imgarray: { panelloc: panelloc
             } } }, function (err) {
         if (err)
-            console.log('Error removing subscription!');
+            console.log('Error removing panel!');
+    });
+    Account.update({ _id: req.user._id }, { $pull: { contributions: { cid: cid
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing contribution!');
     });
     res.redirect(req.get('referer'));
 });

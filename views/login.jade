@@ -4,10 +4,9 @@ link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
 
-style.
-    .elt {
-        float: left;
-    }
+include jadeCss
+include background
+
 
 nav.navbar.navbar-default.navbar-fixed-top
     .container-fluid
@@ -20,16 +19,18 @@ br
 
 body
     .elt
-        h4 Enter your login information
-        form(role='form', action="/login",method="post")
-            p
-                input.form-control(type='text', name="username", placeholder='Enter Username')
-            p
-                input.form-control(type='password', name="password", placeholder='Enter Password')
-            button.btn.btn-primary(type='submit') Submit
-            p
-                a(href='/')
-                    button.btn.btn-default(type="button") Cancel
+        .panel.panel-default
+            .panel-body
+                h4 Enter your login information
+                form(role='form', action="/login",method="post")
+                    p
+                        input.form-control(type='text', name="username", placeholder='Enter Username')
+                    p
+                        input.form-control(type='password', name="password", placeholder='Enter Password')
+                    button.btn.btn-primary(type='submit') Submit
+                    p
+                        a(href='/')
+                            button.btn.btn-default(type="button") Cancel
 
 
 

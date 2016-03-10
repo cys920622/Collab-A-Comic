@@ -5,10 +5,21 @@ link(rel='stylesheet', href='/stylesheets/style.css')
 
 include navbar
 
-h1= title
-p Your notifications:
-    - var notificationArray = user.notifications;
-    each n in notificationArray
-        br
-        - var link = "/comic/"+n.notiCid;
-        a(href=link) #{n.notificationText}
+style.
+    .elt {
+        float: left;
+    }
+    ul.list-group {
+        height: 300px;
+        overflow-y: scroll;
+    }
+
+body
+    .elt
+        h4 Notifications
+        ul.list-group
+            - var notificationArray = user.notifications;
+            each n in notificationArray
+                - var link = "/comic/"+n.notiCid;
+                li.list-group-item
+                    a(href=link) #{n.notificationText}

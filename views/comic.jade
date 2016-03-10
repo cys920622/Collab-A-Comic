@@ -1,52 +1,60 @@
 //
    Created by danielchoi on 2016-02-08.
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
 
-extends layout
+style.
+    .elt {
+        float: left;
+        padding-right: 50px;
+    }
+    ul.list-group {
+        max-height: 300px;
+        overflow-y: scroll;
+    }
 
-link(rel='stylesheet', href='/stylesheets/newcomic.css')
+include navbar
+- var comicid = cid;
+- var viewer = viewerName;
 
-
-block content
-    include navbar
-    - var comicid = cid;
-    - var viewer = viewerName;
+body
     h1 #{title}
-    body
-        if isSubbed
-            form(method="post",action='/comic/'+comicid+'/subscribers/unsubscribe/')
-                input(type="submit", value="Unsubscribe")
-        else
-            form(method="post",action='/comic/' + comicid + '/subscribers/subscribe/')
-                input(type="submit", value="Subscribe")
+    .elt
+        body
+            if isSubbed
+                form(method="post",action='/comic/'+comicid+'/subscribers/unsubscribe/')
+                    input.btn.btn-default(type="submit", value="Unsubscribe")
+            else
+                form(method="post",action='/comic/' + comicid + '/subscribers/subscribe/')
+                    input.btn.btn-default(type="submit", value="Subscribe")
 
 
-    body
-        each panel in panelarray
-            - var author = panel.author;
-            - var authorlink = '/user/'+author;
-            img(src=panel.panelloc, width='400')
-            p.
-                By #[a(href=authorlink) #{author}]
-            if (author)
-                form(method="post", action='/comic/' + comicid + '/remove/')
-                    input(type="hidden", name="panelloc", value=panel.panelloc)
-                    input(type="submit", value="Remove")
-            br
+        body
+            each panel in panelarray
+                - var author = panel.author;
+                - var authorlink = '/user/'+author;
+                img(src=panel.panelloc, width='400')
+                p.
+                    By #[a(href=authorlink) #{author}]
+                if (author == viewerName)
+                    form(method="post", action='/comic/' + comicid + '/remove/')
+                        input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
+                        input.btn.btn-default(type="submit", value="Remove")
+                br
 
-    body
-        p.
-            Subscribers:
-        each s in subscribers
-            - var u = s.subscriber;
-            - var uLink = '/user/'+u;
-            p.
-                #[a(href=uLink) #{u}]
+        body
+            h4 Subscribers:
+            ul.list-group
+                each s in subscribers
+                    - var u = s.subscriber;
+                    - var uLink = '/user/'+u;
+                    li.list-group-item
+                        a(href=uLink) #{u}
 
+        body
 
-    body
-
-        form(method="post",enctype="multipart/form-data",action='/newpanel/'+comicid)
-            p
-                input(type="file",name="upl")
-            p
-                input(type="submit")
+            form(method="post",enctype="multipart/form-data",action='/newpanel/' + comicid)
+                p
+                    input.btn.btn-default.btn-file(type="file",name="upl")
+                p
+                    input.btn.btn-default(type="submit")

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    .elt {
+        margin: 10px;
+        float: left;
+    }
+    nav ul{height:200px; width:18%;}
+    nav ul{overflow:hidden; overflow-y:scroll;}
+
+</style>
+<body>
+    <div class="elt">
+        <ul class="list-group">
+            <li class="list-group-item"><b>Course</b>: {{ post.course }}</li>
+            <li class="list-group-item"><b>Time</b>: {{ post.start_time }} - {{ post.end_time }}</li>
+            <li class="list-group-item"><b>Location</b>:  {{ post.address }}, {{ post.city }}</li>
+            <li class="list-group-item"><b>Author</b>: {{ post.author }}</li>
+            <li class="list-group-item"><b>Contact</b>: {{ post.phone_number }}</li>
+            <li class="list-group-item"><b>Details</b>: {{ post.content }}</li>
+            <li class="list-group-item"><b>Posted</b>: {{ post.timestamp }}</li>
+            <li class="list-group-item"><b>Modified</b>: {{ post.updated }}</li>
+        </ul>
+    </div>
+    <div class="elt">
+        <ul class="list-group">
+            <li class="list-group-item"><b>Course</b>: {{ post.course }}</li>
+            <li class="list-group-item"><b>Time</b>: {{ post.start_time }} - {{ post.end_time }}</li>
+            <li class="list-group-item"><b>Location</b>:  {{ post.address }}, {{ post.city }}</li>
+            <li class="list-group-item"><b>Author</b>: {{ post.author }}</li>
+            <li class="list-group-item"><b>Contact</b>: {{ post.phone_number }}</li>
+            <li class="list-group-item"><b>Details</b>: {{ post.content }}</li>
+            <li class="list-group-item"><b>Posted</b>: {{ post.timestamp }}</li>
+            <li class="list-group-item"><b>Modified</b>: {{ post.updated }}</li>
+        </ul>
+    </div>
+</body>
+</html>

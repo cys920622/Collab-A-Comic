@@ -1,111 +1,107 @@
 //
    Created by danielchoi on 2016-02-08.
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
 
-extends layout
+include navbar
 
+style.
+    .elt {
+        float: left;
+        padding-right: 50px;
+    }
+    ul.list-group {
+        max-height: 300px;
+        overflow-y: scroll;
+    }
 
+body
+    h2 #{viewed.firstName}
+    .elt
+        - var profileUsername = viewed.username;
+        - var viewerUsername = user.username;
+        - var isViewerOwner = profileUsername == viewerUsername;
 
-block content
-    include navbar
-    h1 #{viewed.firstName}'s Profile
-    - var profileUsername = viewed.username;
-    - var viewerUsername = user.username;
-    - var isViewerOwner = profileUsername == viewerUsername;
-    body
-        if !isViewerOwner
-            if isSubbed
-                form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
-                    input(type="submit", value="Unsubscribe")
-            else
-                form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
-                    input(type="submit", value="Subscribe")
-    if (!viewed)
-        a(href="/login") Login
-        br
-        a(href="/register") Register
-    if (viewed)
+        body
+            if !isViewerOwner
+                if isSubbed
+                    form(method="post",action='/user/' + profileUsername + '/subscribers/unsubscribe/')
+                        input.btn.btn-default(type="submit", value="Unsubscribe")
+                else
+                    form(method="post",action='/user/' + profileUsername + '/subscribers/subscribe/')
+                        input.btn.btn-default(type="submit", value="Subscribe")
 
-        p Your information:
-        p Username: #{viewed.username}
-        h3 Profile Picture
         img(src=profilephoto, width='300')
 
         if isViewerOwner
             body
                 form(method="post",enctype="multipart/form-data",action="/profile")
                     p
-                        input(type="file",name="upl")
+                        input.btn.btn-default.btn-(type="file",name="upl")
                     p
-                        input(type="submit")
+                        input.btn.btn-default(type="submit")
                     p
                         img(src=image)
 
-        p First name: #{viewed.firstName}
-        p Last name: #{viewed.lastName}
-        p Email: #{viewed.email}
+        h4 Basic information
+        ul.list-group
+            li.list-group-item
+                if (viewed.isContributor == 1)
+                    b Contributor
+                if (viewed.isContributor == 0)
+                    b Viewer
+            li.list-group-item
+                | Username: #{viewed.username}
+            li.list-group-item
+                | First name: #{viewed.firstName}
+            li.list-group-item
+                | Last name: #{viewed.lastName}
+            li.list-group-item
+                | Email: #{viewed.email}
+
+    .elt
+        h4 List of contributions:
+        ul.list-group
+            each comic in comics
+                - var title = comic.title;
+                - var link = '/comic/'+comic.cid;
+                li.list-group-item
+                    a(href=link) #{title}
+
+        - var subscribers = viewed.followers;
+        h4 Followers:
+        ul.list-group
+            each u in subscribers
+                - var follower = u.followerUserName;
+                li.list-group-item
+                    a(href='/user/'+follower) #{follower}
+
+        - var followingU = viewed.following;
+        h4 Following:
+        ul.list-group
+            each f in followingU
+                - var fUname = f.followedUserName;
+                li.list-group-item
+                    a(href='/user/' + fUname) #{fUname}
 
 
-    if (viewed.isContributor == 1)
-        #badge [Contributor]
-    if (viewed.isContributor == 0)
-        #badge [Viewer]
+        h4 Subscriptions:
+        ul.list-group
+            - var subs = viewed.subs;
+            each c in subs
+                - var subbedComic = c.subCid;
+                - var subTitle = c.subComicName;
+                - var cLink = '/comic/'+subbedComic;
+                li.list-group-item
+                    a(href=cLink) #{subTitle}
 
         if (viewed)
-            button(onclick='myFunction()') Follow
-                p#demo
-                script.
-                    function myFunction() {
-                        var x;
-                        if (confirm("Want to follow this contributor?") == true) {
-                            x = "You are now following this contributor!";
-                        } else {
-                            x = "You decided not to follow :(";
-                        }
-                        document.getElementById("demo").innerHTML = x;
-                    }
-
-    p List of contributions:
-        each comic in comics
-            br
-            - var title = comic.title;
-            - var link = '/comic/'+comic.cid;
-            a(href=link) #{title}
-
-    - var subscribers = viewed.followers;
-    p Followers:
-        each u in subscribers
-            br
-            - var follower = u.followerUserName;
-            a(href='/user/'+follower) #{follower}
-
-    - var followingU = viewed.following;
-    p Following:
-        each f in followingU
-            br
-            - var fUname = f.followedUserName;
-            a(href='/user/' + fUname) #{fUname}
-
-
-    p Subscriptions:
-        - var subs = viewed.subs;
-        each c in subs
-            br
-            - var subbedComic = c.subCid;
-            - var subTitle = c.subComicName;
-            - var cLink = '/comic/'+subbedComic;
-            a(href=cLink) #{subTitle}
-
-    if (viewed)
-        form(name="add-estimation", method="post")
-            div.input
-                span.label Title
-                input(type="text", name="title", placeholder="Title here")
-            div.input
-                span.label Description
-                textarea(name="description", cols="40", rows="5", placeholder="Enter " +
-                "a description!")
-            div.actions
-                input(type="submit", value="add")
-    else
-        li#badge [Viewer]
-    a(href="/logout") Logout
+            h4 Description:
+            form(name="add-estimation", method="post")
+                p
+                    input.form-control(type="text", name="title", placeholder="Title here")
+                p
+                    textarea.form-control(name="description", cols="40", rows="3", placeholder="Enter " +
+                    "a description!")
+                p
+                    input.btn.btn-default(type="submit", value="Update")

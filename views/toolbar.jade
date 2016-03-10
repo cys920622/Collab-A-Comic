@@ -4,6 +4,10 @@ html
     body
         link(rel='stylesheet', href='/stylesheets/toolbarswag.css')
         #floatMenu
+            ul.search
+                form(action='/search')
+                    input(type='text', name='search', placeholder='Search collab-a-comic', formmethod='getAllResponseHeaders()')
+                    input(type='submit', value='Go!')
             ul.menu1
                 li
                     a(href='/homepage')  Home

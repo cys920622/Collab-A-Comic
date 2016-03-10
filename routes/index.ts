@@ -423,4 +423,20 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
   res.redirect(req.get('referer'));
 });
 
+/* GET searchpage. */
+
+router.get('/search', isLoggedIn, function (req, res) {
+  console.log('searching...');
+  Comic.find({title: {$regex: [req.query.search], $options: 'i'}}, function(err, docs) {
+    if (err) {
+      console.log('no results.');
+    }
+    else {
+      console.log(docs);
+      res.render('search', {comics: docs});
+     }
+  });
+});
+
+
 module.exports = router;

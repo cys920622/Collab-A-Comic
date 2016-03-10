@@ -1,18 +1,23 @@
 //
    Created by danielchoi on 2016-02-11.
    https://www.codementor.io/tips/9172397814/setup-file-uploading-in-an-express-js-application-using-multer-js
-extends layout
 
 link(rel='stylesheet', href='css/newcomic.css')
 
-block content
-    include navbar
-    h1 Create New Comic!
-    body
-        form(method="post",enctype="multipart/form-data",action="/newcomic")
-            p
-                input(type="text",name="title",placeholder="Your comic's title")
-            p
-                input(type="file",name="upl")
-            p
-                input(type="submit")
+style.
+    form {
+        margin: 5%;
+        width: 15%;
+    }
+include navbar
+
+body
+    form(method="post",enctype="multipart/form-data",action="/newcomic")
+        p
+            input.form-control(type="text",name="title",placeholder="Your comic's title")
+        p
+            //input(type="file",name="upl")
+            input.btn.btn-default.btn-file(type="file", name="upl")
+        p
+            //input(type="submit")
+            input.btn.btn-default(type='submit')

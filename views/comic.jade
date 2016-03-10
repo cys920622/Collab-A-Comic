@@ -28,7 +28,8 @@ block content
             p.
                 By #[a(href=authorlink) #{author}]
             if (author)
-                form(method="post", action='/comic/' + comicid + '/remove')
+                form(method="post", action='/comic/' + comicid + '/remove/')
+                    input(type="hidden", name="panelloc", value=panel.panelloc)
                     input(type="submit", value="Remove")
             br
 

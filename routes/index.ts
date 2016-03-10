@@ -531,8 +531,29 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
   res.redirect(req.get('referer'));
 });
 
+//<<<<<<< HEAD
+//<<<<<<< HEAD
+/* GET searchpage. */
+
+router.get('/search', isLoggedIn, function (req, res) {
+  console.log('searching...');
+  Comic.find({title: {$regex: [req.query.search], $options: 'i'}}, function(err, docs) {
+    if (err) {
+      console.log('no results.');
+    }
+    else {
+      console.log(docs);
+      res.render('search', {
+        user: req.user,
+        comics: docs});
+     }
+  });
+});
+
+
 // Delete a panel from comic strip
 router.post('/comic/:comicid/remove/',function(req,res){
+
   var cid = req.params.comicid;
   console.log('cid: '+cid);
   var panelloc = req.query.panelloc;
@@ -551,4 +572,5 @@ router.post('/comic/:comicid/remove/',function(req,res){
   res.redirect(req.get('referer'));
 });
 
+//>>>>>>> 3236a20f1bc1805a32f42ec19c3ded963603a336
 module.exports = router;

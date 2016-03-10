@@ -258,4 +258,7 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
     //    });
     res.redirect(req.get('referer'));
 });
+
+
+
 module.exports = router;

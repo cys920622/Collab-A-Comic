@@ -20,6 +20,9 @@ body {
     text-decoration:none;
     padding:5px 5px 5px 25px;
 }
+#floatMenu ul.search li a:hover {
+    border-color:#fff;
+}
 #floatMenu ul.menu1 li a:hover {
     border-color:#fff;
 }
@@ -32,7 +35,7 @@ body {
 #floatMenu ul.menu4 li a:hover {
     border-color:#fff;
 }
-#floatMenu ul.menu1, ul.menu2, ul.menu3, ul.menu4 {
+#floatMenu ul.search, ul.menu1, ul.menu2, ul.menu3, ul.menu4 {
     display:inline-block;
     width:200px;
 }

@@ -470,6 +470,56 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     });
     res.redirect(req.get('referer'));
 });
+//<<<<<<< HEAD
+
+
+
+
+
+///* GET searchpage. */
+//router.get('/search', isLoggedIn, function (req, res) {
+//    res.render('search');
+//    console.log('searching....');
+//    Comic.findOne({ }, function (err, doc) {
+//        if (err) {
+//            console.log('no results.');
+//        }
+//        else {
+//            var comic = doc;
+//            console.log("what's up fatlip");
+//            res.render('comic', {
+//                viewerName: req.user.username,
+//                            cid: req.params.comicid,
+//                            title: doc.title,
+//                            panelarray: doc.imgarray,
+//                            subscribers: doc.subs,
+//                            isSubbed: viewerIsSubbed
+//            });
+//        }
+//    });
+//    //Comic.findById(req.params.comicid, function (err, doc) {
+//    //    if (err) {
+//    //        console.log('Comic not found.');
+//    //    }
+//    //    else {
+//    //        var comic = doc;
+//    //        var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+//    //        console.log("Is viewer subbed: " + viewerIsSubbed);
+//    //        //console.log('Comic: '+doc);
+//    //        //console.log('Searching for :' + req.params.comicid);
+//    //        res.render('comic', {
+//    //            viewerName: req.user.username,
+//    //            cid: req.params.comicid,
+//    //            title: doc.title,
+//    //            panelarray: doc.imgarray,
+//    //            subscribers: doc.subs,
+//    //            isSubbed: viewerIsSubbed
+//    //        });
+//    //    }
+//    //});
+//});
+//
+//=======
 // Delete a comic strip
 router.post('/comic/:comicid/remove', function (req, res) {
     var cid = req.params.comicid;
@@ -486,5 +536,6 @@ router.post('/comic/:comicid/remove', function (req, res) {
     });
     res.redirect(req.get('referer'));
 });
+//>>>>>>> 3236a20f1bc1805a32f42ec19c3ded963603a336
 module.exports = router;
 //# sourceMappingURL=index.js.map

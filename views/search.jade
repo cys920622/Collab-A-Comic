@@ -1,0 +1,21 @@
+//
+   Created by Ford on 3/9/16.
+
+extends layout
+
+link(rel='stylesheet', href='/stylesheets/newcomic.css')
+
+
+
+block content
+    - var title = title;
+    head
+        include navbar
+    h1 #{comic}
+    p Search results...:
+            br
+            each comic in comics
+                - var title = comic.title;
+                - var link = '/comic/'+comic.id;
+                a(href=link) #{title}
+                br

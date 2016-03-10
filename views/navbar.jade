@@ -7,10 +7,10 @@ html(lang='en')
                 a.navbar-brand(href='/homepage/')
                     span.glyphicon.glyphicon-edit(aria-hidden='true')
                     |  Collab-A-Comic!
-            form.navbar-form.navbar-left(method='GET')
+            form.navbar-form.navbar-left(action='/search')
                 .form-group
-                    input.form-control(type='text', placeholder='Enter a search', name='q')
-                input.btn.btn-default(type='submit', value='Search')
+                        input(type='text', name='search', placeholder='Search collab-a-comic', formmethod='getAllResponseHeaders()')
+                        input(type='submit', value='Go!')
             ul.nav.navbar-nav
                 li
                     a(href='/uploadtest/')

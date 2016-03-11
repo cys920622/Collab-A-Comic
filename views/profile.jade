@@ -21,6 +21,15 @@ style.
 
 body
     h2 #{viewed.firstName}
+    body
+        if !isViewerOwner
+            if isSubbed
+            form(method="post", action='/user/'+profileUsername+'/subscribers/unsubscribe/')
+                input.btn.btn-default(type="submit", value="Unsubscribe")
+        else
+            form(method="post", action='/user/'+profileUsername+'/subscribers/subscribe/')
+                input.btn.btn-default(type="submit", value="Subscribe")
+
     .elt
         - var profileUsername = viewed.username;
         - var viewerUsername = user.username;

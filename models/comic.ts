@@ -1,3 +1,5 @@
+comic.ts
+
 /**
  * Created by danielchoi on 2016-02-08.
  */
@@ -15,6 +17,10 @@ var Comic = new Schema({
     subs: [{
         subscriber: String,
         subscriberEmail: String
+    }],
+    commentarray: [{
+        commenter: String,
+        newComment: String
     }]
 });
 module.exports = mongoose.model('Comic', Comic);

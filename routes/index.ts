@@ -246,6 +246,34 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
 )});
 
+// GET comic new comment
+router.get('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
+  res.render('/newcomment/:comicid/:username', {
+    user: req.user
+  })
+});
+
+// POST comic comment
+router.post('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
+  var newComment = req.body.newComment;
+  console.log("New comment: " + newComment);
+  Comic.update(
+      {_id: req.user._id},
+
+      {$push:
+      {
+        commentarray: [{
+          commenter: req.user.username,
+          newComment: newComment
+        }]
+      }},
+      function(err) {
+        if (err) console.log("Error inputting comment!");
+        res.redirect(req.get('referer'));
+      }
+  )
+});
+
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
   // Redirect user if requesting to change another person's profile

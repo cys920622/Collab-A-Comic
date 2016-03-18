@@ -9,9 +9,13 @@ style.
         padding-right: 50px;
     }
     ul.list-group {
-        max-height: 300px;
+        width: 300px;
         overflow-y: scroll;
     }
+    .panel.panel-default {
+        width: 300px;
+    }
+
 
 include navbar
 - var comicid = cid;
@@ -37,10 +41,26 @@ body
                 p.
                     By #[a(href=authorlink) #{author}]
                 if (author == viewerName)
+                    script(type='text/javascript').
+                        function clicked() {
+                            if (confirm('Do you want to delete?')) {
+                                yourformelement.submit();
+                            } else {
+                                return false;
+                            }}
+
                     form(method="post", action='/comic/' + comicid + '/remove/')
                         input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
-                        input.btn.btn-default(type="submit", value="Remove")
+                        input.btn.btn-default(type="submit", onclick = "clicked()", value="Remove")
                 br
+
+        body
+        if (contributor)
+            form(method="post",enctype="multipart/form-data",action='/newpanel/' + comicid)
+                p
+                    input.btn.btn-default.btn-file(type="file",name="upl")
+                p
+                    input.btn.btn-default(type="submit")
 
         body
             h4 Subscribers:
@@ -53,8 +73,19 @@ body
 
         body
 
-            form(method="post",enctype="multipart/form-data",action='/newpanel/' + comicid)
-                p
-                    input.btn.btn-default.btn-file(type="file",name="upl")
-                p
-                    input.btn.btn-default(type="submit")
+            //- var commentString = viewed.newComment;
+            //    .panel.panel-default
+            //        .panel-body
+            //            | #{commentString}
+                //p.
+                //    #[a(href=commenterlink) #{commenter}] says:
+
+        body
+            form(role='form', action='/newcomment/' + comicid + '/' + user.username, method='post')
+                .form-group
+                    textarea.form-control(name="newComment", cols="40", rows="3",
+                    placeholder='Enter your comment here!')
+                button.btn.btn-primary(type='submit') Submit
+            p
+                a(href='.')
+                    button.btn.btn-default(type="button") Cancel

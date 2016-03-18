@@ -41,17 +41,17 @@ body
                 p.
                     By #[a(href=authorlink) #{author}]
                 if (author == viewerName)
-                    script(type='text/javascript').
-                        function clicked() {
-                            if (confirm('Do you want to delete?')) {
-                                yourformelement.submit();
-                            } else {
-                                return false;
-                            }}
+                    //script(type='text/javascript').
+                    //    function clicked() {
+                    //        if (confirm('Do you want to delete?')) {
+                    //            yourformelement.submit();
+                    //        } else {
+                    //            return false;
+                    //        }}
 
                     form(method="post", action='/comic/' + comicid + '/remove/')
                         input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
-                        input.btn.btn-default(type="submit", onclick = "clicked()", value="Remove")
+                        input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure?')", value="Remove")
                 br
 
         body

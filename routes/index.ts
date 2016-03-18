@@ -627,15 +627,11 @@ router.get('/search', isLoggedIn, function (req, res) {
 
 
 //Get remove page
-router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
-  res.render('/comic/:comicid/remote/');
-});
-
-//Delete a panel from comic strip
 router.post('/comic/:comicid/remove/',function(req,res){
+
   var cid = req.params.comicid;
-  //console.log('cid: '+cid);
-  var panelloc = req.query.panelloc;
+  console.log('cid: '+cid);
+  var panelloc = req.body.panelloc;
   console.log('panelloc: '+panelloc);
   console.log("Trying to delete "+ panelloc);
   Comic.update({_id: cid}, {$pull:
@@ -648,7 +644,7 @@ router.post('/comic/:comicid/remove/',function(req,res){
   }}}, function (err) {
     if (err) console.log('Error removing contribution!');
   });
-  res.redirect('/user/'+req.user.username);
+  res.redirect(req.get('referer'));
 });
 
 module.exports = router;

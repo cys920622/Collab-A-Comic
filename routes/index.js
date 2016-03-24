@@ -511,21 +511,66 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     });
     res.redirect(req.get('referer'));
 });
+<<<<<<< HEAD
 
 /* GET searchpage. */
+=======
+// GET search results
+>>>>>>> 42e9831811454455203cbf09de80d6a079a47747
 router.get('/search', isLoggedIn, function (req, res) {
     console.log('searching...');
-    Comic.find({ title: { $regex: [req.query.search], $options: 'i' } }, function (err, docs) {
+    var qq = req.query.search;
+    //var PopSchema = new mongoose.Schema({
+    //  comics: [Comic],
+    //  profiles: [Profile]
+    //});
+    var json = {
+        comics: [Comic],
+        accounts: [Account]
+    };
+    //var pop = mongoose.model('pop', PopSchema);
+    var allcomics = Comic.find({}, function (err, docs) {
+        if (err) {
+            console.log('oops1');
+        }
+        else {
+            console.log(docs);
+        }
+    });
+    var allaccts = Account.find({}, function (err2, docs) {
+        if (err2) {
+            console.log('oops2');
+        }
+        else {
+            console.log(docs);
+        }
+    });
+    allcomics.find({ title: { $regex: [qq], $options: 'i' } }, (function (err, docs) {
         if (err) {
             console.log('no results.');
         }
         else {
+            json.comics = [];
             console.log(docs);
-            res.render('search', {
-                user: req.user,
-                comics: docs });
+            //pop.comics = docs;
+            //console.log(pop.comics);
+            json.comics = docs;
+            allaccts.find({ username: { $regex: [qq], $options: 'i' } }, function (err, docs2) {
+                if (err) {
+                    console.log('no profs');
+                }
+                else {
+                    json.accounts = [];
+                    json.accounts = docs2;
+                    console.log(json.accounts);
+                    res.render('search', {
+                        user: req.user,
+                        comics: json.comics,
+                        accounts: json.accounts });
+                }
+            });
         }
-    });
+    }));
 });
 
 //Get remove page
@@ -536,14 +581,14 @@ router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
 //Delete a panel from comic strip
 router.post('/comic/:comicid/remove/',function(req,res){
     var cid = req.params.comicid;
-    //console.log('cid: '+cid);
-    var panelloc = req.query.panelloc;
-    console.log('panelloc: '+panelloc);
-    console.log("Trying to delete "+ panelloc);
-    Comic.update({_id: cid}, {$pull:
-    { imgarray: { panelloc: panelloc
-    }}}, function (err) {
-        if (err) console.log('Error removing panel!');
+    console.log('cid: ' + cid);
+    var panelloc = req.body.panelloc;
+    console.log('panelloc: ' + panelloc);
+    console.log("Trying to delete " + panelloc);
+    Comic.update({ _id: cid }, { $pull: { imgarray: { panelloc: panelloc
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing panel!');
     });
     Account.update({_id: req.user._id}, {$pull:
     { contributions: { cid: cid

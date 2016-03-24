@@ -1,21 +1,23 @@
 //
    Created by Ford on 3/9/16.
 
-extends layout
+include navbar
+include jadeCss
 
-link(rel='stylesheet', href='/stylesheets/newcomic.css')
-
-
-
-block content
-    - var title = title;
-    head
-        include navbar
-    h1 #{comic}
-    p Search results...:
-            br
-            each comic in comics
-                - var title = comic.title;
-                - var link = '/comic/'+comic.id;
+body
+    .elt
+        h4 In comics
+        ul.list-group
+        each comic in comics
+            - var title = comic.title;
+            - var link = '/comic/'+comic.id;
+            li.list-group-item
                 a(href=link) #{title}
-                br
+    .elt
+        h4 In users
+        ul.list-group
+        each account in accounts
+            - var name = account.username;
+            - var link = '/user/'+name;
+            li.list-group-item
+                a(href=link) #{name}

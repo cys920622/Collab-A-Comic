@@ -20,13 +20,21 @@ style.
     }
 
 body
+    - var profileUsername = viewed.username;
+    - var viewerUsername = user.username;
+    - var isViewerOwner = profileUsername == viewerUsername;
+    - console.log(isSubbed);
     h2 #{viewed.firstName}
+    body
+        if !isViewerOwner
+            if isSubbed
+                form(method="post", action='/user/'+profileUsername+'/subscribers/unsubscribe/')
+                    input.btn.btn-default(type="submit", value="Unsubscribe")
+            else
+                form(method="post", action='/user/'+profileUsername+'/subscribers/subscribe/')
+                    input.btn.btn-default(type="submit", value="Subscribe")
+
     .elt
-        - var profileUsername = viewed.username;
-        - var viewerUsername = user.username;
-        - var isViewerOwner = profileUsername == viewerUsername;
-
-
         img(src=profilephoto, width='300')
 
 

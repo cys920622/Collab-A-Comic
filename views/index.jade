@@ -3,10 +3,8 @@ link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
 
-style.
-  .elt {
-    float: left;
-  }
+include jadeCss
+include background
 
 nav.navbar.navbar-default.navbar-fixed-top
   .container-fluid
@@ -17,8 +15,13 @@ nav.navbar.navbar-default.navbar-fixed-top
 br
 
 body
-    div#note #{message}
-
-    a(href="/login") Login
-    br
-    a(href="/register") Register
+    .elt
+        .panel.panel-default
+            .panel-body
+                div#note #{message}
+                h4 Welcome!
+                ul.list-group
+                    li.list-group-item
+                        a(href="/login") Login
+                    li.list-group-item
+                        a(href="/register") Register

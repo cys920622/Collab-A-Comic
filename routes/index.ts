@@ -613,21 +613,63 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
 });
 
 
-/* GET searchpage. */
-
+// GET search results
 router.get('/search', isLoggedIn, function (req, res) {
   console.log('searching...');
-  Comic.find({title: {$regex: [req.query.search], $options: 'i'}}, function(err, docs) {
+  var qq = req.query.search;
+  //var PopSchema = new mongoose.Schema({
+  //  comics: [Comic],
+  //  profiles: [Profile]
+  //});
+  var json = {
+    comics: [Comic],
+    accounts: [Account]
+  };
+
+  //var pop = mongoose.model('pop', PopSchema);
+
+  var allcomics = Comic.find({}, function(err, docs) {
+    if (err) {
+      console.log('oops1')
+    } else {
+      console.log(docs);
+    }
+  });
+  var allaccts = Account.find({}, function(err2, docs) {
+    if (err2) {
+      console.log('oops2')
+    } else {
+      console.log(docs);
+    }
+  });
+
+  allcomics.find({title: {$regex: [qq], $options: 'i'}}, (function(err, docs) {
     if (err) {
       console.log('no results.');
     }
     else {
+      json.comics = [];
       console.log(docs);
-      res.render('search', {
-        user: req.user,
-        comics: docs});
-     }
-  });
+      //pop.comics = docs;
+      //console.log(pop.comics);
+      json.comics = docs;
+
+      allaccts.find({username: {$regex: [qq], $options: 'i'}}, function(err, docs2) {
+        if (err) {
+          console.log('no profs');
+        } else {
+          json.accounts = [];
+          json.accounts = docs2;
+          console.log(json.accounts);
+
+          res.render('search', {
+            user: req.user,
+            comics: json.comics,
+            accounts: json.accounts});}
+      });
+    }
+  }));
+
 });
 
 

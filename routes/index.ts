@@ -171,6 +171,10 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
     subs: [{
       subscriber: req.user.username,
       subscriberEmail: req.user.email
+    }],
+    commentarray: [{
+      commenter: req.user.username,
+      newComment: req.body.newComment
     }]
   });
 
@@ -263,7 +267,7 @@ router.post('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
       {$push:
       {
         commentarray: [{
-          commenter: req.user.username,
+          commenter: req.body.username,
           newComment: newComment
         }]
       }},
@@ -381,7 +385,8 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         title: doc.title,
         panelarray: doc.imgarray,
         subscribers: doc.subs,
-        isSubbed: viewerIsSubbed
+        isSubbed: viewerIsSubbed,
+        comments: doc.commentarray
       });
     }
   });

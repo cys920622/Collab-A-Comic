@@ -41,13 +41,6 @@ body
                 p.
                     By #[a(href=authorlink) #{author}]
                 if (author == viewerName)
-                    //script(type='text/javascript').
-                    //    function clicked() {
-                    //        if (confirm('Do you want to delete?')) {
-                    //            yourformelement.submit();
-                    //        } else {
-                    //            return false;
-                    //        }}
 
                     form(method="post", action='/comic/' + comicid + '/remove/')
                         input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
@@ -73,17 +66,8 @@ body
                         a(href=uLink) #{u}
 
         body
-
-            //- var commentString = viewed.newComment;
-            //    .panel.panel-default
-            //        .panel-body
-            //            | #{commentString}
-                //p.
-                //    #[a(href=commenterlink) #{commenter}] says:
-
-        body
             h2 Add a comment!
-            form(role='form', action='/newcomment/' + comicid + '/' + user.username, method='post')
+            form(method='post', action='/newcomment/' + comicid + '/' + user.username, id='commentform')
                 .form-group
                     textarea.form-control(name="newComment", cols="40", rows="3",
                     placeholder='Enter your comment here!')

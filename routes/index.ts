@@ -250,7 +250,7 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
 )});
 
-router.get('/newcomment', isLoggedIn, function(req, res) {
+router.get('/newcomment/:comicid', isLoggedIn, function(req, res) {
 console.log("FOUND COMMENTS");
   Comment.find({}, function ( err, comments, count ){
     console.log(comments);
@@ -268,12 +268,14 @@ console.log("FOUND COMMENTS");
 });
 
 
-router.post('/newcomment', isLoggedIn, function(req, res) {
+router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
   console.log("entered comments");
+  console.log("comment comicid: " + req.params.comicid);
   new Comment({
-    commenter : req.body.username,
+    commenter : req.body.commenter,
     content : req.body.comment,
-    created : Date.now()
+    created : Date.now(),
+    comicid : req.params.comicid
   }).save( function( err, comment, count ){
     res.redirect( req.get('referer') );
   });
@@ -373,7 +375,10 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
   }
 
   Comic.findById(req.params.comicid, function (err, doc) {
-    Comment.find({}, function (err, comments, count) {
+    console.log("req.params.comicid: " + req.params.comicid);
+    Comment.find({
+      'comicid':req.params.comicid
+    }, function (err, comments, count) {
       console.log(comments);
       //res.render('/comic/:comicid', {
       //  title: 'Comment for Comic',
@@ -398,7 +403,6 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
           subscribers: doc.subs,
           isSubbed: viewerIsSubbed,
           comments: comments
-
         });
       }
     });

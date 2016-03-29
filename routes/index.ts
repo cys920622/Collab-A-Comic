@@ -8,6 +8,10 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var fs = require('fs');
+var wstream = fs.createWriteStream('myOutput.txt');
+var Comment = require('../models/comment.ts');
+//var http = require('http');
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -171,11 +175,12 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
     subs: [{
       subscriber: req.user.username,
       subscriberEmail: req.user.email
-    }],
-    commentarray: [{
-      commenter: req.user.username,
-      newComment: req.body.newComment
     }]
+
+    //commentarray: [{
+    //  commenter: req.user.username,
+    //  newComment: req.body.newComment
+    //}]
   });
 
   c.save();
@@ -201,8 +206,6 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
       }
     }
   });
-
-
 
   res.redirect('/comic/' + c.id);
 
@@ -249,34 +252,93 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
           }
         }
 )});
+//
+//
+//var xhrGet = new XMLHttpRequest();
+//xhrGet = open("GET", 'https://api.mlab.com/api/1/databases/cpsc310/collections/comments?apiKey=YuMG3g0hZ9OXAkk0EE1F2hTjgCd7789Y')
+//$(function() {
+//
+//  var comments = ('#comments');
+//
+//  $.ajax({
+//    type: 'GET',
+//    url: 'https://api.mlab.com/api/1/databases/cpsc310/collections/comments?apiKey=YuMG3g0hZ9OXAkk0EE1F2hTjgCd7789Y',
+//    success: function(comments){
+//      console.log('success', comments)
+//      $.each(comments, function(i, comment) {
+//        $comments.append('<li>comment: ' + comment.content + ' </li>')
+//      })
+//    }
+//  });
+//});
 
 // GET comic new comment
-router.get('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
-  res.render('/newcomment/:comicid/:username', {
-    user: req.user
-  })
+//router.index = function ( req, res ){
+//  Comment.find( function ( err, comments, count ){
+//    res.render( 'comic', {
+//      title : 'Comment System with Mongoose and Node',
+//      comments : comments
+//    });
+//  });
+//};
+
+router.get('/newcomment', isLoggedIn, function(req, res) {
+console.log("FOUND COMMENTS");
+  Comment.find({}, function ( err, comments, count ){
+    console.log(comments);
+    res.render( '/comic/:comicid', {
+      title : 'Comment for Comic',
+      comment : comments
+    });
+    console.log('found comment');
+    //res.render('/newcomment/:comicid/:username', {
+  //  user: req.user,
+  //  title: 'Comment for comic',
+  //  comments: comments
+  //})
+  });
 });
 
 // POST comic comment
-router.post('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
-  var newComment = req.body.newComment;
-  console.log("New comment: " + newComment);
-  Comic.update(
-      {_id: req.user._id},
+//router.create = function ( req, res ){
+//  new Comment({
+//    commenter : req.body.username,
+//    content : req.body.comment,
+//    created : Date.now()
+//  }).save( function( err, comment, count ){
+//    res.redirect( req.get('referer') );
+//  });
+//};
 
-      {$push:
-      {
-        commentarray: [{
-          commenter: req.body.username,
-          newComment: newComment
-        }]
-      }},
-      function(err) {
-        if (err) console.log("Error inputting comment!");
-        res.redirect(req.get('referer'));
-      }
-  )
+router.post('/newcomment', isLoggedIn, function(req, res) {
+  console.log("entered comments");
+  new Comment({
+    commenter : req.body.username,
+    content : req.body.comment,
+    created : Date.now()
+  }).save( function( err, comment, count ){
+    res.redirect( req.get('referer') );
+  });
 });
+
+//  var newComment = req.comic.newComment;
+//  console.log("New comment: " + newComment);
+//  Comic.update(
+//      {_id: req.user._id},
+//
+//      {$push:
+//      {
+//        commentarray: [{
+//          commenter: req.body.username,
+//          newComment: newComment
+//        }]
+//      }},
+//      function(err) {
+//        if (err) console.log("Error inputting comment!");
+//        res.redirect(req.get('referer'));
+//      }
+//  )
+//});
 
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
@@ -369,26 +431,42 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
     }
     return false;
   }
-  Comic.findById(req.params.comicid, function(err, doc) {
-    if (err) {
-      console.log('Comic not found.');
-    } else {
-      var comic = doc;
-      var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-      console.log("Is viewer subbed: "+viewerIsSubbed);
-      //console.log('Comic: '+doc);
-      //console.log('Searching for :' + req.params.comicid);
-      res.render('comic', {
-        user: req.user,
-        viewerName: req.user.username,
-        cid: req.params.comicid,
-        title: doc.title,
-        panelarray: doc.imgarray,
-        subscribers: doc.subs,
-        isSubbed: viewerIsSubbed,
-        comments: doc.commentarray
-      });
-    }
+
+  Comic.findById(req.params.comicid, function (err, doc) {
+    Comment.find({}, function (err, comments, count) {
+      console.log(comments);
+      //res.render('/comic/:comicid', {
+      //  title: 'Comment for Comic',
+      //});
+      console.log('found comment');
+
+      console.log("I have passed the comments and now looking for comic");
+      if (err) {
+        console.log('Comic not found.');
+      } else {
+        var comic = doc;
+        var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+        console.log("Is viewer subbed: " + viewerIsSubbed);
+        //console.log('Comic: '+doc);
+        //console.log('Searching for :' + req.params.comicid);
+        res.render('comic', {
+          user: req.user,
+          viewerName: req.user.username,
+          cid: req.params.comicid,
+          title: doc.title,
+          panelarray: doc.imgarray,
+          subscribers: doc.subs,
+          isSubbed: viewerIsSubbed,
+          comments: comments
+
+          //comments: doc.commentarray
+          //}, 'comment', {
+          //  commenter: req.user.username,
+          //  content: doc.content,
+          //  //created: doc.dateTime,
+        });
+      }
+    });
   });
 });
 

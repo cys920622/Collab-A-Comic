@@ -66,23 +66,11 @@ body
                         a(href=uLink) #{u}
 
 
-        //body
-        //    .comments-container
-        //        .comments-container-child
-        //            form(name='commentform', onsubmit='return post()', method='POST', action='')
-        //                input#commentName(type='text', name='commentname', placeholder='Optional: give yourself a name')
-        //                br
-        //                textarea#writeComment(name='writingcomment', placeholder='comment..')
-        //                input(type='hidden', name='getpage', value='<%=', story.id='', %='')
-        //                |  >
-        //                // EJS printing the ID
-        //                input(type='submit', value='submit')
         body
             h2 Leave a comment!
             div.addCommentForm
             form(method='post', action='/newcomment/')
                 .form-group
-                    input(type="text", name="commenter", placeholder="Name")
                     textarea.form-control(name="comment", cols="40", rows="3",
                     placeholder='Enter your comment here!')
                 button.btn.btn-primary(type='submit') Submit

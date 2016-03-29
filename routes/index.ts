@@ -8,10 +8,7 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
-var fs = require('fs');
-var wstream = fs.createWriteStream('myOutput.txt');
 var Comment = require('../models/comment.ts');
-//var http = require('http');
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -252,35 +249,6 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
           }
         }
 )});
-//
-//
-//var xhrGet = new XMLHttpRequest();
-//xhrGet = open("GET", 'https://api.mlab.com/api/1/databases/cpsc310/collections/comments?apiKey=YuMG3g0hZ9OXAkk0EE1F2hTjgCd7789Y')
-//$(function() {
-//
-//  var comments = ('#comments');
-//
-//  $.ajax({
-//    type: 'GET',
-//    url: 'https://api.mlab.com/api/1/databases/cpsc310/collections/comments?apiKey=YuMG3g0hZ9OXAkk0EE1F2hTjgCd7789Y',
-//    success: function(comments){
-//      console.log('success', comments)
-//      $.each(comments, function(i, comment) {
-//        $comments.append('<li>comment: ' + comment.content + ' </li>')
-//      })
-//    }
-//  });
-//});
-
-// GET comic new comment
-//router.index = function ( req, res ){
-//  Comment.find( function ( err, comments, count ){
-//    res.render( 'comic', {
-//      title : 'Comment System with Mongoose and Node',
-//      comments : comments
-//    });
-//  });
-//};
 
 router.get('/newcomment', isLoggedIn, function(req, res) {
 console.log("FOUND COMMENTS");
@@ -299,16 +267,6 @@ console.log("FOUND COMMENTS");
   });
 });
 
-// POST comic comment
-//router.create = function ( req, res ){
-//  new Comment({
-//    commenter : req.body.username,
-//    content : req.body.comment,
-//    created : Date.now()
-//  }).save( function( err, comment, count ){
-//    res.redirect( req.get('referer') );
-//  });
-//};
 
 router.post('/newcomment', isLoggedIn, function(req, res) {
   console.log("entered comments");
@@ -321,24 +279,6 @@ router.post('/newcomment', isLoggedIn, function(req, res) {
   });
 });
 
-//  var newComment = req.comic.newComment;
-//  console.log("New comment: " + newComment);
-//  Comic.update(
-//      {_id: req.user._id},
-//
-//      {$push:
-//      {
-//        commentarray: [{
-//          commenter: req.body.username,
-//          newComment: newComment
-//        }]
-//      }},
-//      function(err) {
-//        if (err) console.log("Error inputting comment!");
-//        res.redirect(req.get('referer'));
-//      }
-//  )
-//});
 
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
@@ -459,11 +399,6 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
           isSubbed: viewerIsSubbed,
           comments: comments
 
-          //comments: doc.commentarray
-          //}, 'comment', {
-          //  commenter: req.user.username,
-          //  content: doc.content,
-          //  //created: doc.dateTime,
         });
       }
     });

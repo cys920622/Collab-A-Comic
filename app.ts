@@ -40,6 +40,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+//app.get('/', routes.index);
+//app.post('/create', routes.create);
 
 
 // Passport tutorial: http://bit.ly/1TNXvgG

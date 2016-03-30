@@ -65,13 +65,60 @@ body
                     li.list-group-item
                         a(href=uLink) #{u}
 
+
         body
-            h2 Add a comment!
-            form(method='post', action='/newcomment/' + comicid + '/' + user.username, id='commentform')
+            h2 Leave a comment!
+            div.addCommentForm
+            form(method='post', action='/newcomment/'+ comicid)
                 .form-group
-                    textarea.form-control(name="newComment", cols="40", rows="3",
-                    placeholder='Enter your comment here!')
+                    input.form-control(name="commenter", placeholder="Name", required='')
+                    textarea.form-control(name="comment", cols="40", rows="3",
+                    placeholder='Enter your comment here!', required='')
                 button.btn.btn-primary(type='submit') Submit
             p
                 a(href='.')
                     button.btn.btn-default(type="button") Cancel
+
+
+            #comments
+                each comment in comments
+                        div.comment
+                            h4 Comment by:
+                            div.name= comment.commenter
+                            br
+                            h4 "
+                            div.content= comment.content
+                            h4 "
+                            div.created_at= comment.created
+                            hr
+        //body
+        //    h2 Comments:
+        //    #{comments}
+                //span.label Name :
+                //input(type="text", class="nameTxt", name="commenter")
+                //div
+                //    span.label Comment :
+                //    textarea(name="comment")
+                //    div#addCommentSubmit
+                //        input(type="submit", value="Save")
+                //        br
+                //        br
+                //        #comments
+
+        //
+        //body
+        //    h4 Comments:
+        //    each co in comments
+        //        - var commentString = co.newComment;
+        //            .panel.panel-default
+        //                .panel-body
+        //                    | #{commentString}
+
+        //each comment in comments
+        //    div.comment
+        //    div.name= comment.commenter
+        //    div.created_at= comment.created
+        //    br
+        //    div.content= comment.content
+        //    hr
+        //

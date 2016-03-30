@@ -11,6 +11,7 @@ var Profile = require('../models/profile.ts');
 var async = require('async');
 var crypto = require('crypto');
 
+var Comment = require('../models/comment.ts');
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -300,11 +301,12 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
     subs: [{
       subscriber: req.user.username,
       subscriberEmail: req.user.email
-    }],
-    commentarray: [{
-      commenter: req.user.username,
-      newComment: req.body.newComment
     }]
+
+    //commentarray: [{
+    //  commenter: req.user.username,
+    //  newComment: req.body.newComment
+    //}]
   });
 
   c.save();
@@ -330,8 +332,6 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
       }
     }
   });
-
-
 
   res.redirect('/comic/' + c.id);
 
@@ -379,33 +379,37 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
 )});
 
-// GET comic new comment
-router.get('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
-  res.render('/newcomment/:comicid/:username', {
-    user: req.user
-  })
+router.get('/newcomment/:comicid', isLoggedIn, function(req, res) {
+console.log("FOUND COMMENTS");
+  Comment.find({}, function ( err, comments, count ){
+    console.log(comments);
+    res.render( '/comic/:comicid', {
+      title : 'Comment for Comic',
+      comment : comments
+    });
+    console.log('found comment');
+    //res.render('/newcomment/:comicid/:username', {
+  //  user: req.user,
+  //  title: 'Comment for comic',
+  //  comments: comments
+  //})
+  });
 });
 
-// POST comic comment
-router.post('/newcomment/:comicid/:username', isLoggedIn, function(req, res) {
-  var newComment = req.body.newComment;
-  console.log("New comment: " + newComment);
-  Comic.update(
-      {_id: req.user._id},
 
-      {$push:
-      {
-        commentarray: [{
-          commenter: req.body.username,
-          newComment: newComment
-        }]
-      }},
-      function(err) {
-        if (err) console.log("Error inputting comment!");
-        res.redirect(req.get('referer'));
-      }
-  )
+router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
+  console.log("entered comments");
+  console.log("comment comicid: " + req.params.comicid);
+  new Comment({
+    commenter : req.body.commenter,
+    content : req.body.comment,
+    created : Date.now(),
+    comicid : req.params.comicid
+  }).save( function( err, comment, count ){
+    res.redirect( req.get('referer') );
+  });
 });
+
 
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
@@ -498,26 +502,39 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
     }
     return false;
   }
-  Comic.findById(req.params.comicid, function(err, doc) {
-    if (err) {
-      console.log('Comic not found.');
-    } else {
-      var comic = doc;
-      var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-      console.log("Is viewer subbed: "+viewerIsSubbed);
-      //console.log('Comic: '+doc);
-      //console.log('Searching for :' + req.params.comicid);
-      res.render('comic', {
-        user: req.user,
-        viewerName: req.user.username,
-        cid: req.params.comicid,
-        title: doc.title,
-        panelarray: doc.imgarray,
-        subscribers: doc.subs,
-        isSubbed: viewerIsSubbed,
-        comments: doc.commentarray
-      });
-    }
+
+  Comic.findById(req.params.comicid, function (err, doc) {
+    console.log("req.params.comicid: " + req.params.comicid);
+    Comment.find({
+      'comicid':req.params.comicid
+    }, function (err, comments, count) {
+      console.log(comments);
+      //res.render('/comic/:comicid', {
+      //  title: 'Comment for Comic',
+      //});
+      console.log('found comment');
+
+      console.log("I have passed the comments and now looking for comic");
+      if (err) {
+        console.log('Comic not found.');
+      } else {
+        var comic = doc;
+        var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+        console.log("Is viewer subbed: " + viewerIsSubbed);
+        //console.log('Comic: '+doc);
+        //console.log('Searching for :' + req.params.comicid);
+        res.render('comic', {
+          user: req.user,
+          viewerName: req.user.username,
+          cid: req.params.comicid,
+          title: doc.title,
+          panelarray: doc.imgarray,
+          subscribers: doc.subs,
+          isSubbed: viewerIsSubbed,
+          comments: comments
+        });
+      }
+    });
   });
 });
 

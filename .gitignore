@@ -6,6 +6,7 @@
 
 # Ignore debug log
 /models/npm-debug.log
+/npm-debug.log
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template

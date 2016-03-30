@@ -8,6 +8,7 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var Comment = require('../models/comment.ts');
 //var db = app.mongoose.connection;
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -221,6 +222,34 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
     });
 });
+router.get('/newcomment/:comicid', isLoggedIn, function (req, res) {
+    console.log("FOUND COMMENTS");
+    Comment.find({}, function (err, comments, count) {
+        console.log(comments);
+        res.render('/comic/:comicid', {
+            title: 'Comment for Comic',
+            comment: comments
+        });
+        console.log('found comment');
+        //res.render('/newcomment/:comicid/:username', {
+        //  user: req.user,
+        //  title: 'Comment for comic',
+        //  comments: comments
+        //})
+    });
+});
+router.post('/newcomment/:comicid', isLoggedIn, function (req, res) {
+    console.log("entered comments");
+    console.log("comment comicid: " + req.params.comicid);
+    new Comment({
+        commenter: req.body.commenter,
+        content: req.body.comment,
+        created: Date.now(),
+        comicid: req.params.comicid
+    }).save(function (err, comment, count) {
+        res.redirect(req.get('referer'));
+    });
+});
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
     // Redirect user if requesting to change another person's profile
@@ -296,25 +325,38 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         return false;
     }
     Comic.findById(req.params.comicid, function (err, doc) {
-        if (err) {
-            console.log('Comic not found.');
-        }
-        else {
-            var comic = doc;
-            var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-            console.log("Is viewer subbed: " + viewerIsSubbed);
-            //console.log('Comic: '+doc);
-            //console.log('Searching for :' + req.params.comicid);
-            res.render('comic', {
-                user: req.user,
-                viewerName: req.user.username,
-                cid: req.params.comicid,
-                title: doc.title,
-                panelarray: doc.imgarray,
-                subscribers: doc.subs,
-                isSubbed: viewerIsSubbed
-            });
-        }
+        console.log("req.params.comicid: " + req.params.comicid);
+        Comment.find({
+            'comicid': req.params.comicid
+        }, function (err, comments, count) {
+            console.log(comments);
+            //res.render('/comic/:comicid', {
+            //  title: 'Comment for Comic',
+            //});
+            console.log('found comment');
+            console.log("I have passed the comments and now looking for comic");
+            if (err) {
+                console.log('Comic not found.');
+            }
+            else {
+                var comic = doc;
+                var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+                console.log("Is viewer subbed: " + viewerIsSubbed);
+                //console.log('Comic: '+doc);
+                //console.log('Searching for :' + req.params.comicid);
+                res.render('comic', {
+                    contributor: req.user.isContributor,
+                    user: req.user,
+                    viewerName: req.user.username,
+                    cid: req.params.comicid,
+                    title: doc.title,
+                    panelarray: doc.imgarray,
+                    subscribers: doc.subs,
+                    isSubbed: viewerIsSubbed,
+                    comments: comments
+                });
+            }
+        });
     });
 });
 // Function to send notification emails
@@ -511,12 +553,7 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     });
     res.redirect(req.get('referer'));
 });
-<<<<<<< HEAD
-
-/* GET searchpage. */
-=======
 // GET search results
->>>>>>> 42e9831811454455203cbf09de80d6a079a47747
 router.get('/search', isLoggedIn, function (req, res) {
     console.log('searching...');
     var qq = req.query.search;
@@ -572,14 +609,8 @@ router.get('/search', isLoggedIn, function (req, res) {
         }
     }));
 });
-
 //Get remove page
-router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
-    res.render('/comic/:comicid/remote/');
-});
-
-//Delete a panel from comic strip
-router.post('/comic/:comicid/remove/',function(req,res){
+router.post('/comic/:comicid/remove/', function (req, res) {
     var cid = req.params.comicid;
     console.log('cid: ' + cid);
     var panelloc = req.body.panelloc;
@@ -590,13 +621,12 @@ router.post('/comic/:comicid/remove/',function(req,res){
         if (err)
             console.log('Error removing panel!');
     });
-    Account.update({_id: req.user._id}, {$pull:
-    { contributions: { cid: cid
-    }}}, function (err) {
-        if (err) console.log('Error removing contribution!');
+    Account.update({ _id: req.user._id }, { $pull: { contributions: { cid: cid
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing contribution!');
     });
-    res.redirect('/user/'+req.user.username);
+    res.redirect(req.get('referer'));
 });
-
 module.exports = router;
 //# sourceMappingURL=index.js.map

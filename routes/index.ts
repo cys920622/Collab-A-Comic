@@ -395,6 +395,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         //console.log('Comic: '+doc);
         //console.log('Searching for :' + req.params.comicid);
         res.render('comic', {
+          contributor: req.user.isContributor,
           user: req.user,
           viewerName: req.user.username,
           cid: req.params.comicid,

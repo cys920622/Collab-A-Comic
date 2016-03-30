@@ -28,6 +28,8 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
+//app.get('/', routes.index);
+//app.post('/create', routes.create);
 // Passport tutorial: http://bit.ly/1TNXvgG
 // Passport configuration
 var Account = require('./models/account.ts');

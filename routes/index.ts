@@ -272,7 +272,7 @@ router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
   console.log("entered comments");
   console.log("comment comicid: " + req.params.comicid);
   new Comment({
-    commenter : req.body.commenter,
+    commenter : req.user.username,
     content : req.body.comment,
     created : Date.now(),
     comicid : req.params.comicid

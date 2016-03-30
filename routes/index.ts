@@ -36,6 +36,7 @@ router.post('/register', function(req, res) {
     lastName : req.body.lastName,
     username : req.body.username,
     email : req.body.email,
+    emailSetting: true,
     isContributor: req.body.isContributor,
     description : req.body.description
   }), req.body.password, function(err, account) {
@@ -299,6 +300,7 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
   var newLastName = req.user.lastName;
   var newEmail = req.user.email;
   var newDescrip = req.user.description;
+  var newEmailSetting;
   // Take on new values if form was filled
   if (req.body.firstName) {
     newFirstName = req.body.firstName;
@@ -312,6 +314,14 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
   if (req.body.description) {
     newDescrip = req.body.description;
   }
+  console.log(req.body.emailsOn);
+  if (req.body.emailsOn == "true") {
+    newEmailSetting = true;
+    console.log("Emails are ON");
+  } else {
+    newEmailSetting = false;
+    console.log("Emails are OFF")
+  }
   Account.update(
       {_id: req.user._id},
 
@@ -320,6 +330,7 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
         firstName: newFirstName,
         lastName: newLastName,
         email: newEmail,
+        emailSetting: newEmailSetting,
         description: newDescrip
       }},
       function(err) {
@@ -417,7 +428,7 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
   if (notificationType === "newPanel") {
     textbody = "Hi "+recipUsername+", \n"+actorUsername+" contributed a new panel to "+comic+"!\n" +
         "You can check it out here: https://collab-a-comic.herokuapp.com/comic/"+cid+
-    "\n\nCheers, \nTeam Friendship";
+        "\n\nCheers, \nTeam Friendship";
     subject = "Collab-A-Comic: "+actorUsername+" contributed a new panel to "+comic+"!";
   }
   if (notificationType === "newComment") {
@@ -432,18 +443,28 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
         "\n\nCheers, \nTeam Friendship";
     subject = "Collab-A-Comic: "+actorUsername+" started a new comic!";
   }
-  client.sendEmail({
-    "From": "daniel.choi@alumni.ubc.ca",
-    "To": recipEmail,
-    "Subject": subject,
-    "TextBody": textbody
-  }, function(error, success) {
-    if(error) {
-      console.error("Unable to send via postmark: " + error.message);
-      return;
+
+  Account.findOne({username: recipUsername}, function(err, doc) {
+    if (err) {
+      console.log('User not found.');
+    } else if (doc.emailSetting){
+      console.log(">>> " + doc.username + " emails: " + doc.emailSetting);
+      client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": recipEmail,
+        "Subject": subject,
+        "TextBody": textbody
+      }, function(error, success) {
+        if(error) {
+          console.error("Unable to send via postmark: " + error.message);
+          return;
+        }
+        console.info("POSTMARK: recipEmail: "+recipEmail+", recipName: "+recipUsername+", actorUsername: "+
+            actorUsername+", comic: "+comic+", cid: "+cid+", notificationType: "+notificationType);
+      });
+    } else if (!doc.emailSetting) {
+      console.log(">>> " + doc.username + " emails: " + doc.emailSetting);
     }
-    console.info("POSTMARK: recipEmail: "+recipEmail+", recipName: "+recipUsername+", actorUsername: "+
-    actorUsername+", comic: "+comic+", cid: "+cid+", notificationType: "+notificationType);
   });
 }
 
@@ -520,6 +541,7 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/'}).si
       for (var i = 0; i < doc.subs.length; i++) {
         sendSubscriptionEmail(doc.subs[i].subscriberEmail, doc.subs[i].subscriber,
             req.user.username, doc.title, doc.id, "newPanel");
+        console.log("Attempting to send email to: " + doc.subs[i].subscriberEmail);
         createNotification(doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
       }
     }

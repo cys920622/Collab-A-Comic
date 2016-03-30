@@ -8,4 +8,9 @@ var Comment = new Schema({
         comicid : String
 });
 
+///* GET comments listing. */
+//router.get('/', function(req, res, next) {
+//        res.send('respond with a resource');
+//});
+
 module.exports = mongoose.model( 'Comment', Comment );

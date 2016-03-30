@@ -253,7 +253,7 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
 router.get('/newcomment/:comicid', isLoggedIn, function(req, res) {
 console.log("FOUND COMMENTS");
   Comment.find({}, function ( err, comments, count ){
-    console.log(comments);
+    //console.log(comments);
     res.render( '/comic/:comicid', {
       title : 'Comment for Comic',
       comment : comments
@@ -281,6 +281,61 @@ router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
   });
 });
 
+//REMOVE a comment
+router.post('/comment/:comicid/remove/', isLoggedIn, function(req, res) {
+  //var cid = req.params.comicid;
+  //var commentid = req.params.commentid;
+  var comment = req.body.comment;
+  console.log("The comment I am trying to delete with lower c: " + comment);
+  console.log("Comment with cap C: " + Comment);
+  var key = "_id";
+  var value = comment[key];
+  //console.log("please print my id: " + value.$oid);
+
+  //console.log("comment content:" + comment.content.toObject());
+  var jsond = JSON.parse(comment);
+  //console.log("parse comment._id:" + jsond);
+  //console.log("ID of comment I am trying to delete: " + jsond._id);
+  //console.log("id again: " + jsond.id);
+  //console.log("commenter of the comment i'm trying to delete: " + jsond.commenter);
+  //Comment.findOne({ _id: comment.id}, function(err,doc) {
+  //
+  //  var comment = doc.toObject();
+  //  delete comment.element;
+  //
+  //  console.log( comment );
+  //
+  //});
+
+  Comment.update({'_id': req.comment._id},
+      {$pull: {
+        comment: comment
+      }}), function (err) {
+    if (err) console.log('can\'t remove comment');
+      };
+  res.redirect(req.get('referer'));
+});
+
+//Get remove page
+//router.post('/comic/:comicid/remove/',function(req,res){
+//
+//  var cid = req.params.comicid;
+//  console.log('cid: '+cid);
+//  var panelloc = req.body.panelloc;
+//  console.log('panelloc: '+panelloc);
+//  console.log("Trying to delete "+ panelloc);
+//  Comic.update({_id: cid}, {$pull:
+//  { imgarray: { panelloc: panelloc
+//  }}}, function (err) {
+//    if (err) console.log('Error removing panel!');
+//  });
+//  Account.update({_id: req.user._id}, {$pull:
+//  { contributions: { cid: cid
+//  }}}, function (err) {
+//    if (err) console.log('Error removing contribution!');
+//  });
+//  res.redirect(req.get('referer'));
+//});
 
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
@@ -379,7 +434,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
     Comment.find({
       'comicid':req.params.comicid
     }, function (err, comments, count) {
-      console.log(comments);
+      //console.log(comments);
       //res.render('/comic/:comicid', {
       //  title: 'Comment for Comic',
       //});

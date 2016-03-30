@@ -82,16 +82,23 @@ body
 
             #comments
                 each comment in comments
-                    - var click = '/user/' + comment.commenter
-                        div.comment
-                            h4 By #[a(href=click) #{comment.commenter}]
-                            //div.name= comment.commenter
-                            br
-                            h4 "
-                            div.content= comment.content
-                            h4 "
-                            div.created_at= comment.created
-                            hr
+                    if (comment != null)
+                        h2 Comments:
+                        - var click = '/user/' + comment.commenter
+                            div.comment
+                                //div.name= comment.commenter
+                                br
+                                h4 "
+                                div.content= comment.content
+                                h4 "
+                                div.created_at= comment.created
+                                hr
+                                h4 By #[a(href=click) #{comment.commenter}]
+
+                        if (comment.commenter == viewerName)
+                            form(method="post", action='/comment/' + comicid + '/remove/')
+                                input.btn.btn-default(type="hidden", name="comment", value=comment)
+                                input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure?')", value="Remove")
         //body
         //    h2 Comments:
         //    #{comments}

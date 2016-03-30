@@ -13,6 +13,7 @@ var Account = new Schema({
     lastName: String,
     profilephotopath: String,
     email: String,
+    emailSetting: Boolean,
     username: String,
     //password: String,
     isContributor: Boolean,

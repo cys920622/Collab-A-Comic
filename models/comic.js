@@ -15,6 +15,10 @@ var Comic = new Schema({
     subs: [{
             subscriber: String,
             subscriberEmail: String
+        }],
+    commentarray: [{
+            commenter: String,
+            newComment: String
         }]
 });
 module.exports = mongoose.model('Comic', Comic);

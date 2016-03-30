@@ -8,6 +8,7 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var Comment = require('../models/comment.ts');
 //var db = app.mongoose.connection;
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -31,6 +32,7 @@ router.post('/register', function (req, res) {
         lastName: req.body.lastName,
         username: req.body.username,
         email: req.body.email,
+        emailSetting: true,
         isContributor: req.body.isContributor,
         description: req.body.description
     }), req.body.password, function (err, account) {
@@ -221,6 +223,34 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
         }
     });
 });
+router.get('/newcomment/:comicid', isLoggedIn, function (req, res) {
+    console.log("FOUND COMMENTS");
+    Comment.find({}, function (err, comments, count) {
+        console.log(comments);
+        res.render('/comic/:comicid', {
+            title: 'Comment for Comic',
+            comment: comments
+        });
+        console.log('found comment');
+        //res.render('/newcomment/:comicid/:username', {
+        //  user: req.user,
+        //  title: 'Comment for comic',
+        //  comments: comments
+        //})
+    });
+});
+router.post('/newcomment/:comicid', isLoggedIn, function (req, res) {
+    console.log("entered comments");
+    console.log("comment comicid: " + req.params.comicid);
+    new Comment({
+        commenter: req.body.commenter,
+        content: req.body.comment,
+        created: Date.now(),
+        comicid: req.params.comicid
+    }).save(function (err, comment, count) {
+        res.redirect(req.get('referer'));
+    });
+});
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
     // Redirect user if requesting to change another person's profile
@@ -237,6 +267,7 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
     var newLastName = req.user.lastName;
     var newEmail = req.user.email;
     var newDescrip = req.user.description;
+    var newEmailSetting;
     // Take on new values if form was filled
     if (req.body.firstName) {
         newFirstName = req.body.firstName;
@@ -250,10 +281,20 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
     if (req.body.description) {
         newDescrip = req.body.description;
     }
+    console.log(req.body.emailsOn);
+    if (req.body.emailsOn == "true") {
+        newEmailSetting = true;
+        console.log("Emails are ON");
+    }
+    else {
+        newEmailSetting = false;
+        console.log("Emails are OFF");
+    }
     Account.update({ _id: req.user._id }, { $set: {
             firstName: newFirstName,
             lastName: newLastName,
             email: newEmail,
+            emailSetting: newEmailSetting,
             description: newDescrip
         } }, function (err) {
         if (err)
@@ -296,29 +337,47 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         return false;
     }
     Comic.findById(req.params.comicid, function (err, doc) {
-        if (err) {
-            console.log('Comic not found.');
-        }
-        else {
-            var comic = doc;
-            var viewerIsSubbed = checkSub(req.user.username, doc.subs);
-            console.log("Is viewer subbed: " + viewerIsSubbed);
-            //console.log('Comic: '+doc);
-            //console.log('Searching for :' + req.params.comicid);
-            res.render('comic', {
-                user: req.user,
-                viewerName: req.user.username,
-                cid: req.params.comicid,
-                title: doc.title,
-                panelarray: doc.imgarray,
-                subscribers: doc.subs,
-                isSubbed: viewerIsSubbed
-            });
-        }
+        console.log("req.params.comicid: " + req.params.comicid);
+        Comment.find({
+            'comicid': req.params.comicid
+        }, function (err, comments, count) {
+            console.log(comments);
+            //res.render('/comic/:comicid', {
+            //  title: 'Comment for Comic',
+            //});
+            console.log('found comment');
+            console.log("I have passed the comments and now looking for comic");
+            if (err) {
+                console.log('Comic not found.');
+            }
+            else {
+                var comic = doc;
+                var viewerIsSubbed = checkSub(req.user.username, doc.subs);
+                console.log("Is viewer subbed: " + viewerIsSubbed);
+                //console.log('Comic: '+doc);
+                //console.log('Searching for :' + req.params.comicid);
+                res.render('comic', {
+                    contributor: req.user.isContributor,
+                    user: req.user,
+                    viewerName: req.user.username,
+                    cid: req.params.comicid,
+                    title: doc.title,
+                    panelarray: doc.imgarray,
+                    subscribers: doc.subs,
+                    isSubbed: viewerIsSubbed,
+                    comments: comments
+                });
+            }
+        });
     });
 });
 // Function to send notification emails
 function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, cid, notificationType) {
+    if (recipUsername == actorUsername) {
+        console.log(">>> Recipient == Actor, not sending email notification");
+        return;
+    }
+    console.log("Starting email notification");
     var textbody;
     var subject;
     if (notificationType === "newPanel") {
@@ -339,18 +398,29 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
             "\n\nCheers, \nTeam Friendship";
         subject = "Collab-A-Comic: " + actorUsername + " started a new comic!";
     }
-    client.sendEmail({
-        "From": "daniel.choi@alumni.ubc.ca",
-        "To": recipEmail,
-        "Subject": subject,
-        "TextBody": textbody
-    }, function (error, success) {
-        if (error) {
-            console.error("Unable to send via postmark: " + error.message);
-            return;
+    Account.findOne({ username: recipUsername }, function (err, doc) {
+        if (err) {
+            console.log('User not found.');
         }
-        console.info("POSTMARK: recipEmail: " + recipEmail + ", recipName: " + recipUsername + ", actorUsername: " +
-            actorUsername + ", comic: " + comic + ", cid: " + cid + ", notificationType: " + notificationType);
+        else if (doc.emailSetting) {
+            console.log(">>> " + doc.username + " emails: " + doc.emailSetting);
+            client.sendEmail({
+                "From": "daniel.choi@alumni.ubc.ca",
+                "To": recipEmail,
+                "Subject": subject,
+                "TextBody": textbody
+            }, function (error, success) {
+                if (error) {
+                    console.error("Unable to send via postmark: " + error.message);
+                    return;
+                }
+                console.info("POSTMARK: recipEmail: " + recipEmail + ", recipName: " + recipUsername + ", actorUsername: " +
+                    actorUsername + ", comic: " + comic + ", cid: " + cid + ", notificationType: " + notificationType);
+            });
+        }
+        else if (!doc.emailSetting) {
+            console.log(">>> " + doc.username + " emails: " + doc.emailSetting);
+        }
     });
 }
 // Function to create homepage notification
@@ -365,6 +435,11 @@ function createNotification(recipUsername, actorUsername, comic, cid, notificati
     if (notificationType === "newComic") {
         textBody = actorUsername + " made a new comic called " + comic;
     }
+    if (recipUsername == actorUsername) {
+        console.log(">>> Recipient == Actor, not adding homepage notification");
+        return;
+    }
+    console.log("Sending homepage notification");
     Account.update({ username: recipUsername }, { $push: { notifications: {
                 notificationText: textBody,
                 actor: actorUsername,
@@ -422,6 +497,7 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
             // Send notifications to subscribers
             for (var i = 0; i < doc.subs.length; i++) {
                 sendSubscriptionEmail(doc.subs[i].subscriberEmail, doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
+                console.log("Attempting to send email to: " + doc.subs[i].subscriberEmail);
                 createNotification(doc.subs[i].subscriber, req.user.username, doc.title, doc.id, "newPanel");
             }
         }
@@ -511,12 +587,7 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
     });
     res.redirect(req.get('referer'));
 });
-<<<<<<< HEAD
-
-/* GET searchpage. */
-=======
 // GET search results
->>>>>>> 42e9831811454455203cbf09de80d6a079a47747
 router.get('/search', isLoggedIn, function (req, res) {
     console.log('searching...');
     var qq = req.query.search;
@@ -572,14 +643,8 @@ router.get('/search', isLoggedIn, function (req, res) {
         }
     }));
 });
-
 //Get remove page
-router.get('/comic/:comicid/remove/', isLoggedIn, function(req, res) {
-    res.render('/comic/:comicid/remote/');
-});
-
-//Delete a panel from comic strip
-router.post('/comic/:comicid/remove/',function(req,res){
+router.post('/comic/:comicid/remove/', function (req, res) {
     var cid = req.params.comicid;
     console.log('cid: ' + cid);
     var panelloc = req.body.panelloc;
@@ -590,13 +655,12 @@ router.post('/comic/:comicid/remove/',function(req,res){
         if (err)
             console.log('Error removing panel!');
     });
-    Account.update({_id: req.user._id}, {$pull:
-    { contributions: { cid: cid
-    }}}, function (err) {
-        if (err) console.log('Error removing contribution!');
+    Account.update({ _id: req.user._id }, { $pull: { contributions: { cid: cid
+            } } }, function (err) {
+        if (err)
+            console.log('Error removing contribution!');
     });
-    res.redirect('/user/'+req.user.username);
+    res.redirect(req.get('referer'));
 });
-
 module.exports = router;
 //# sourceMappingURL=index.js.map

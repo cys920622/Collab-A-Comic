@@ -20,6 +20,7 @@ style.
 include navbar
 - var comicid = cid;
 - var viewer = viewerName;
+- var comid = commid;
 
 body
     h1 #{title}
@@ -96,8 +97,8 @@ body
                                 h4 By #[a(href=click) #{comment.commenter}]
 
                         if (comment.commenter == viewerName)
-                            form(method="post", action='/comment/' + comicid + '/remove/')
-                                input.btn.btn-default(type="hidden", name="comment", value=comment)
+                            form(method="post", action='/comment/remove/')
+                                input.btn.btn-default(type="hidden", name="comment", value=comment._id)
                                 input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure?')", value="Remove")
         //body
         //    h2 Comments:

@@ -9,6 +9,7 @@ var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
 var Comment = require('../models/comment.ts');
+var ObjectId = require('mongoose').Types.ObjectId;
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -271,29 +272,55 @@ console.log("FOUND COMMENTS");
 router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
   console.log("entered comments");
   console.log("comment comicid: " + req.params.comicid);
-  new Comment({
+  var comm = new Comment({
     commenter : req.user.username,
     content : req.body.comment,
     created : Date.now(),
     comicid : req.params.comicid
-  }).save( function( err, comment, count ){
+  });
+  comm.save( function( err, comment, count ){
     res.redirect( req.get('referer') );
+  });
+
+  Account.update({_id: req.user._id}, {$push: { contributions: {
+    commentid: comm.id,
+  }}}, function (err) {
+    if (err) console.log("Error pushing comic to contributions!");
   });
 });
 
 //REMOVE a comment
-router.post('/comment/:comicid/remove/', isLoggedIn, function(req, res) {
-  //var cid = req.params.comicid;
-  //var commentid = req.params.commentid;
+router.post('/comment/remove/', isLoggedIn, function(req, res) {
+  //var comid = req.params.commid;
+  //console.log("commentid: " + comid);
   var comment = req.body.comment;
-  console.log("The comment I am trying to delete with lower c: " + comment);
-  console.log("Comment with cap C: " + Comment);
-  var key = "_id";
-  var value = comment[key];
-  //console.log("please print my id: " + value.$oid);
+  console.log("comment object: " + comment);
+  var content = req.body.content;
+  console.log("comment content: "+content);
+  //var splitcomment = comment.split(",");
+  ////console.log("splitcomment: "+splitcomment);
+  //var rightelem = splitcomment[5];
+  ////console.log("rightelem: "+rightelem);
+  //var aftersplit2 = rightelem.split(" ");
+  ////console.log("aftersplit2: " + aftersplit2);
+  //var lastone = aftersplit2[3];
+  //console.log("lastone: "+lastone);
+  //var jsond = JSON.parse(JSON.stringify(comment));
+  //console.log("jsond: " + jsond._id);
+  //console.log("jsond: " + jsond.commenter);
+
+  //console.log("The comment I am trying to delete with lower c: " + comment);
+  //console.log("Comment with cap C: " + Comment);
+  //var key = "_id";
+  //var value = comment["key"];
+  ////var ObjectId = Comment.ObjectId;
+  ////var commentid = new ObjectId(req.params.commentid);
+  ////console.log("please print my id: " + value.$oid);
 
   //console.log("comment content:" + comment.content.toObject());
-  var jsond = JSON.parse(comment);
+  //var jsond = JSON.parse(comment);
+  //var _id = jsond['_id'];
+  //console.log("with brackets id:" + _id);
   //console.log("parse comment._id:" + jsond);
   //console.log("ID of comment I am trying to delete: " + jsond._id);
   //console.log("id again: " + jsond.id);
@@ -307,35 +334,18 @@ router.post('/comment/:comicid/remove/', isLoggedIn, function(req, res) {
   //
   //});
 
-  Comment.update({'_id': req.comment._id},
-      {$pull: {
-        comment: comment
-      }}), function (err) {
+  //var deleteme = Comment.findOne({_id: comment});
+  Comment.remove({_id: comment}, function (err) {
     if (err) console.log('can\'t remove comment');
-      };
+  });
+    //{$pull: {
+    //  comment: comment
+    //}}), function (err) {
+    //if (err) console.log('can\'t remove comment');
+    //  };
   res.redirect(req.get('referer'));
 });
 
-//Get remove page
-//router.post('/comic/:comicid/remove/',function(req,res){
-//
-//  var cid = req.params.comicid;
-//  console.log('cid: '+cid);
-//  var panelloc = req.body.panelloc;
-//  console.log('panelloc: '+panelloc);
-//  console.log("Trying to delete "+ panelloc);
-//  Comic.update({_id: cid}, {$pull:
-//  { imgarray: { panelloc: panelloc
-//  }}}, function (err) {
-//    if (err) console.log('Error removing panel!');
-//  });
-//  Account.update({_id: req.user._id}, {$pull:
-//  { contributions: { cid: cid
-//  }}}, function (err) {
-//    if (err) console.log('Error removing contribution!');
-//  });
-//  res.redirect(req.get('referer'));
-//});
 
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {

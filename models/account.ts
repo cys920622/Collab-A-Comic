@@ -37,7 +37,11 @@ var Account = new Schema({
         comicName: String,
         notiCid: String
     }],
-    description: String
+    description: String,
+    comments: [{
+        commid: String,
+        cid: String
+    }]
 });
 
 Account.plugin(passportLocalMongoose);

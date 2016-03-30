@@ -1,5 +1,6 @@
-// Passport tutorial: http://bit.ly/1TNXvgG
-   Created by danielchoi on 2016-02-08.
+//
+   Created by danielchoi on 2016-03-24.
+
 link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
@@ -21,13 +22,11 @@ body
     .elt
         .panel.panel-default
             .panel-body
-                h4 Enter your login information
-                form(role='form', action="/login",method="post")
-                    p
-                        input.form-control(type='text', name="username", placeholder='Enter Username')
-                    p
-                        input.form-control(type='password', name="password", placeholder='Enter Password')
-                    button.btn.btn-primary(type='submit') Login
-                    a.btn.btn-link(href='/forgot') Forgot Password?
+                form(method='POST')
+                    legend Forgot Password
+                    .form-group
+                        label(for='email') Email
+                        input.form-control(type='text', name='email', autofocus)
+                    button.btn.btn-primary(type='submit') Reset Password
 
 

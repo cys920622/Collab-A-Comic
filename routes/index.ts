@@ -8,6 +8,9 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var async = require('async');
+var crypto = require('crypto');
+
 //var db = app.mongoose.connection;
 
 // Postmark config
@@ -68,6 +71,67 @@ router.post('/login', passport.authenticate('local-login', {
       //failureFlash: 'login fail'
     }
 ));
+
+// http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/
+// GET forgot password page
+router.get('/forgot', function(req, res) {
+  res.render('forgot', {
+    user: req.user
+  });
+});
+
+
+// POST forgot password
+router.post('/forgot', function(req, res, next) {
+  async.waterfall([
+    function(done) {
+      crypto.randomBytes(20, function(err, buf) {
+        var token = buf.toString('hex');
+        done(err, token);
+      });
+    },
+    function(token, done) {
+      Account.findOne({ email: req.body.email }, function(err, user) {
+        if (!user) {
+          req.flash('error', 'No account with that email address exists.');
+          return res.redirect('/forgot');
+        }
+
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+        user.save(function(err) {
+          done(err, token, user);
+        });
+      });
+    },
+    function(token, user, done) {
+      client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": user.email,
+        "Subject": "Collab-A-Comic password reset",
+        "TextBody": 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+        'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+        'If you did not request this, please ignore this email and your password will remain unchanged. \n\nCheers, \nTeam Friendship"'
+      }, function(error, success) {
+        if(error) {
+          console.error("Unable to send via postmark: " + error.message);
+          return;
+        }
+        res.render('index', {
+          title: "Collab-a-Comic!",
+          message: "A password reset link has been sent to "+user.email
+        });
+        console.info("Postmark sent email to: " + req.body.email);
+      });
+    }
+  ], function(err) {
+    if (err) return next(err);
+    res.redirect('/forgot');
+  });
+});
+
 
 /* GET homepage. */
 router.get('/homepage', isLoggedIn, function (req, res) {
@@ -130,6 +194,71 @@ function sendConfEmail(req, res) {
     console.info("Postmark sent email to: " + req.body.email);
   });
 }
+
+// GET password reset
+router.get('/reset/:token', function(req, res) {
+  Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+    if (!user) {
+      res.render('index', {
+        title: "Collab-a-Comic!",
+        message: 'Password reset token is invalid or has expired.'
+      });
+    }
+    console.log('Loading reset for user: ' + user.username);
+    res.render('reset', {
+      user: req.user
+    });
+  });
+});
+
+// POST password reset
+router.post('/reset/:token', function(req, res) {
+  async.waterfall([
+    function(done) {
+      Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+        console.log('Resetting for user: ' + user.username);
+        if (!user) {
+          console.log('Error resetting password - invalid or expired token');
+          return res.redirect('back');
+        }
+
+        console.log('OLD password: '+ user.password);
+        console.log('NEW password: ' + req.body.password);
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        user.save(function(err) {
+          req.logIn(user, function(err) {
+            done(err, user);
+          });
+        });
+      });
+    },
+    function(user, done) {
+      client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": user.email,
+        "Subject": "Your Collab-A-Comic password was reset",
+        "TextBody": 'Hello,\n\n' +
+        'This is a confirmation that the password for your account ' + user.email + ' has just been changed.' +
+        ' \n\nCheers, \nTeam Friendship"'
+      }, function(error, success) {
+        if(error) {
+          console.error("Unable to send via postmark: " + error.message);
+          return;
+        }
+        res.render('index', {
+          title: "Collab-a-Comic!",
+          message: 'Your password was reset.'
+        });
+        console.info("Postmark sent email to: " + user.email);
+      });
+    }
+  ], function(err) {
+    res.redirect('/');
+  });
+});
 
 // Multer file upload
 /* GET new comic page */
@@ -432,6 +561,9 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
 // Function to create homepage notification
 function createNotification(recipUsername, actorUsername, comic, cid, notificationType) {
   var textBody;
+  if (actorUsername == recipUsername) {
+    return;
+  }
   if (notificationType === "newPanel") {
     textBody = actorUsername+" contributed a new panel to "+comic
   }

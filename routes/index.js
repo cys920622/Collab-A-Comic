@@ -373,6 +373,11 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
 });
 // Function to send notification emails
 function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, cid, notificationType) {
+    if (recipUsername == actorUsername) {
+        console.log(">>> Recipient == Actor, not sending email notification");
+        return;
+    }
+    console.log("Starting email notification");
     var textbody;
     var subject;
     if (notificationType === "newPanel") {
@@ -430,6 +435,11 @@ function createNotification(recipUsername, actorUsername, comic, cid, notificati
     if (notificationType === "newComic") {
         textBody = actorUsername + " made a new comic called " + comic;
     }
+    if (recipUsername == actorUsername) {
+        console.log(">>> Recipient == Actor, not adding homepage notification");
+        return;
+    }
+    console.log("Sending homepage notification");
     Account.update({ username: recipUsername }, { $push: { notifications: {
                 notificationText: textBody,
                 actor: actorUsername,

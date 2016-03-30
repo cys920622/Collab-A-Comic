@@ -14,7 +14,7 @@ var Account = new Schema({
     profilephotopath: String,
     email: String,
     username: String,
-    password: String,
+    //password: String,
     isContributor: Boolean,
     contributions: [{
         cid: String,
@@ -36,7 +36,8 @@ var Account = new Schema({
         notificationText: String,
         actor: String,
         comicName: String,
-        notiCid: String
+        notiCid: String,
+        maxItems: Number,
     }],
     description: String,
     resetPasswordToken: String,

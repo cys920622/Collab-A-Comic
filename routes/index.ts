@@ -580,6 +580,7 @@ function createNotification(recipUsername, actorUsername, comic, cid, notificati
         actor: actorUsername,
         comicName: comic,
         notiCid: cid
+        //maxItems: 10,
       }}},
       function (err) {
         if (err) console.log("Error adding follower!");

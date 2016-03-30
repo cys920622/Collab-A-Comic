@@ -18,8 +18,11 @@ body
     .elt
         h4 Notifications
         ul.list-group
-            - var notificationArray = user.notifications;
+            - var notificationArray = user.notifications.reverse();
             each n in notificationArray
-                - var link = "/comic/"+n.notiCid;
-                li.list-group-item
-                    a(href=link) #{n.notificationText}
+                - var i = 10;
+                if i != 0
+                    - var link = "/comic/"+n.notiCid;
+                    li.list-group-item
+                        a(href=link) #{n.notificationText}
+                    //i - 1;

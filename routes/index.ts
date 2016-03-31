@@ -71,6 +71,21 @@ router.post('/login', passport.authenticate('local-login', {
     }
 ));
 
+/* POST change password form */
+router.post('/changepwlogin/', passport.authenticate('local-login', {
+      successRedirect: '/changepw/',
+      failureRedirect: '/homepage',
+      //failureFlash: 'login fail'
+    }
+));
+
+router.get('/changepw/', isLoggedIn, function (req, res) {
+  res.render('changepw', {user: req.user});
+});
+
+// GET change password page
+
+
 /* GET homepage. */
 router.get('/homepage', isLoggedIn, function (req, res) {
   res.render('homepage', {user: req.user});

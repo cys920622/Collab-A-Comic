@@ -3,151 +3,144 @@
 link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 
-style.
-    .elt {
-        float: left;
-        padding-right: 50px;
-    }
-    ul.list-group {
-        width: 300px;
-        overflow-y: scroll;
-    }
-    .panel.panel-default {
-        width: 300px;
-    }
-
-
+include background
+include loggedInCss
 include navbar
+
+
 - var comicid = cid;
 - var viewer = viewerName;
 - var comid = commid;
 
 body
-    h1 #{title}
     .elt
-        body
-            if isSubbed
-                form(method="post",action='/comic/'+comicid+'/subscribers/unsubscribe/')
-                    input.btn.btn-default(type="submit", value="Unsubscribe")
-            else
-                form(method="post",action='/comic/' + comicid + '/subscribers/subscribe/')
-                    input.btn.btn-default(type="submit", value="Subscribe")
+        .panel.panel-default
+            .panel-body
+                h2 #{title}
+                .elt
+                    body
+                        if isSubbed
+                            form(method="post",action='/comic/'+comicid+'/subscribers/unsubscribe/')
+                                input.btn.btn-default(type="submit", value="Unsubscribe")
+                        else
+                            form(method="post",action='/comic/' + comicid + '/subscribers/subscribe/')
+                                input.btn.btn-default(type="submit", value="Subscribe")
 
 
-        body
-            each panel in panelarray
-                - var author = panel.author;
-                - var authorlink = '/user/'+author;
-                img(src=panel.panelloc, width='400')
-                p.
-                    By #[a(href=authorlink) #{author}]
-                if (author == viewerName)
+                    body
+                        each panel in panelarray
+                            - var author = panel.author;
+                            - var authorlink = '/user/'+author;
+                            img(src=panel.panelloc, width='400')
+                            p.
+                                By #[a(href=authorlink) #{author}]
+                            if (author == viewerName)
 
-                    form(method="post", action='/comic/' + comicid + '/remove/')
-                        input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
-                        input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want to " +
-                        "delete the panel?')", value="Remove")
-                br
+                                form(method="post", action='/comic/' + comicid + '/remove/')
+                                    input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
+                                    input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want to " +
+                                    "delete the panel?')", value="Remove")
+                            br
 
-        body
-        if (contributor)
-            h2 Add a panel!
-            form(method="post",enctype="multipart/form-data",action='/newpanel/' + comicid)
-                p
-                    input.btn.btn-default.btn-file(type="file",name="upl")
-                p
-                    input.btn.btn-default(type="submit")
+                    body
+                    if (contributor)
+                        h2 Add a panel!
+                        form(method="post",enctype="multipart/form-data",action='/newpanel/' + comicid)
+                            p
+                                input.btn.btn-default.btn-file(type="file",name="upl")
+                            p
+                                input.btn.btn-default(type="submit")
 
-        body
-            h4 Subscribers:
-            ul.list-group
-                each s in subscribers
-                    - var u = s.subscriber;
-                    - var uLink = '/user/'+u;
-                    li.list-group-item
-                        a(href=uLink) #{u}
-
-
-        body
-            h2 Leave a comment!
-            div.addCommentForm
-            form(method='post', action='/newcomment/'+ comicid)
-                .form-group
-                    //input.form-control(name="commenter", placeholder="Name", required='')
-                    textarea.form-control(name="comment", cols="40", rows="3",
-                    placeholder='Enter your comment here!', required='')
-                button.btn.btn-primary(type='submit') Submit
-                a(href='.')
-                    button.btn.btn-default(type="button") Cancel
+                    body
+                        h4 Subscribers:
+                        ul.list-group
+                            each s in subscribers
+                                - var u = s.subscriber;
+                                - var uLink = '/user/'+u;
+                                li.list-group-item
+                                    a(href=uLink) #{u}
 
 
-
-
-            #comments
-                if (comments != null)
-                    h2 Comments:
-                    hr
-                each comment in comments
-                    - var click = '/user/' + comment.commenter
-                    div.comment
-                        //div.name= comment.commenter
-                        br
-                        h3 #{comment.content}
-                        h8 Commented on: #{comment.created}
-                        br
-                        h8 By #[a(href=click) #{comment.commenter}]
-                        br
-
-                    if (comment.commenter == viewerName)
-                        form(method="post", action='/comment/remove/')
-                            input.btn.btn-default(type="hidden", name="comment", value=comment._id)
-                            input.btn.btn-default(type="hidden", name="comicid", value=comicid)
-                            input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want " +
-                            "to remove the comment?')", value="Remove")
-                    if (comment.commenter == viewerName)
-                        body
-                            a(href='/comment/' + comment._id + '/edit')
-                                input.btn.btn-default(type="hidden", name="comicid", value=comicid)
-                                button.btn.btn-default(type="button") Edit Comment
-                    div.comment
-                        hr
+                    body
+                        h2 Leave a comment!
+                        div.addCommentForm
+                        form(method='post', action='/newcomment/'+ comicid)
+                            .form-group
+                                //input.form-control(name="commenter", placeholder="Name", required='')
+                                textarea.form-control(name="comment", cols="40", rows="3",
+                                placeholder='Enter your comment here!', required='')
+                            button.btn.btn-primary(type='submit') Submit
+                            a(href='.')
+                                button.btn.btn-default(type="button") Cancel
 
 
 
 
-                        //if (comment.commenter == viewerName)
-                        //    a(href='/comic/'+comicid+'/comment/'+comment._id+'/edit')
-                        //        input.btn.btn-default(type="hidden", name="comment", value=comment._id)
-                        //        input.btn.btn-default(type="submit", value= "Edit Comment")
+                        #comments
+                            if (comments != null)
+                                h2 Comments:
+                                hr
+                            each comment in comments
+                                - var click = '/user/' + comment.commenter
+                                div.comment
+                                    //div.name= comment.commenter
+                                    br
+                                    h3 #{comment.content}
+                                    h8 Commented on: #{comment.created}
+                                    br
+                                    h8 By #[a(href=click) #{comment.commenter}]
+                                    br
 
-        //body
-        //    h2 Comments:
-        //    #{comments}
-                //span.label Name :
-                //input(type="text", class="nameTxt", name="commenter")
-                //div
-                //    span.label Comment :
-                //    textarea(name="comment")
-                //    div#addCommentSubmit
-                //        input(type="submit", value="Save")
-                //        br
-                //        br
-                //        #comments
+                                if (comment.commenter == viewerName)
+                                    form(method="post", action='/comment/remove/')
+                                        input.btn.btn-default(type="hidden", name="comment", value=comment._id)
+                                        input.btn.btn-default(type="hidden", name="comicid", value=comicid)
+                                        input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want " +
+                                        "to remove the comment?')", value="Remove")
+                                if (comment.commenter == viewerName)
+                                    body
+                                        a(href='/comment/' + comment._id + '/edit')
+                                            input.btn.btn-default(type="hidden", name="comicid", value=comicid)
+                                            button.btn.btn-default(type="button") Edit Comment
+                                div.comment
+                                    hr
 
-        //
-        //body
-        //    h4 Comments:
-        //    each co in comments
-        //        - var commentString = co.newComment;
-        //            .panel.panel-default
-        //                .panel-body
-        //                    | #{commentString}
 
-        //each comment in comments
-        //    div.comment
-        //    div.name= comment.commenter
-        //    div.created_at= comment.created
-        //    br
-        //    div.content= comment.content
-        //    hr
-        //
+
+
+                                    //if (comment.commenter == viewerName)
+                                    //    a(href='/comic/'+comicid+'/comment/'+comment._id+'/edit')
+                                    //        input.btn.btn-default(type="hidden", name="comment", value=comment._id)
+                                    //        input.btn.btn-default(type="submit", value= "Edit Comment")
+
+                    //body
+                    //    h2 Comments:
+                    //    #{comments}
+                            //span.label Name :
+                            //input(type="text", class="nameTxt", name="commenter")
+                            //div
+                            //    span.label Comment :
+                            //    textarea(name="comment")
+                            //    div#addCommentSubmit
+                            //        input(type="submit", value="Save")
+                            //        br
+                            //        br
+                            //        #comments
+
+                    //
+                    //body
+                    //    h4 Comments:
+                    //    each co in comments
+                    //        - var commentString = co.newComment;
+                    //            .panel.panel-default
+                    //                .panel-body
+                    //                    | #{commentString}
+
+                    //each comment in comments
+                    //    div.comment
+                    //    div.name= comment.commenter
+                    //    div.created_at= comment.created
+                    //    br
+                    //    div.content= comment.content
+                    //    hr
+                    //

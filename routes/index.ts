@@ -11,6 +11,8 @@ var Profile = require('../models/profile.ts');
 var async = require('async');
 var crypto = require('crypto');
 
+
+
 var Comment = require('../models/comment.ts');
 //var db = app.mongoose.connection;
 
@@ -213,6 +215,7 @@ router.get('/reset/:token', function(req, res) {
   });
 });
 
+
 // POST password reset
 router.post('/reset/:token', function(req, res) {
   async.waterfall([
@@ -224,17 +227,36 @@ router.post('/reset/:token', function(req, res) {
           return res.redirect('back');
         }
 
-        console.log('OLD password: '+ user.password);
-        console.log('NEW password: ' + req.body.password);
-        user.password = req.body.password;
+        user.hash = req.body.password;
+
+        var iterations = 25000;
+        var keylen = 512;
+        var saltlen = 32;
+
+        crypto.randomBytes(saltlen, function (err, salt) {
+          if (err) { throw err; }
+          salt = new Buffer(salt).toString('hex');
+          user.salt = salt;
+
+          // https://masteringmean.com/lessons/46-Encryption-and-password-hashing-with-Nodejs
+          crypto.pbkdf2(req.body.password, salt, iterations, keylen, 'sha256',
+              function (err, hash) {
+                if (err) { throw err; }
+                user.hash = new Buffer(hash).toString('hex');
+                console.log("SALT: " + user.salt);
+                console.log("HASH: "+user.hash);
+                user.save(function(err) {
+                  req.logIn(user, function(err) {
+                    done(err, user);
+                  });
+                });
+              });
+        });
+
+        console.log("NEW hash: " + user.hash);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
 
-        user.save(function(err) {
-          req.logIn(user, function(err) {
-            done(err, user);
-          });
-        });
       });
     },
     function(user, done) {
@@ -364,24 +386,24 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
   var viewerIsSubbed = checkSub(req.params.username, req.user.following);
 
   Account.findOne({username: req.params.username}, function(err, doc) {
-    if (err) {
-      console.log('User not found.');
+        if (err) {
+          console.log('User not found.');
         } else {
           //var account = doc;
           //console.log(doc);
-                res.render('profile', {
-                  isSubbed: viewerIsSubbed,
-                  viewed: doc,
-                  comics: doc.contributions,
-                  user: req.user,
-                  profilephoto: doc.profilephotopath,
-                });
-          }
+          res.render('profile', {
+            isSubbed: viewerIsSubbed,
+            viewed: doc,
+            comics: doc.contributions,
+            user: req.user,
+            profilephoto: doc.profilephotopath,
+          });
         }
-)});
+      }
+  )});
 
 router.get('/newcomment/:comicid', isLoggedIn, function(req, res) {
-console.log("FOUND COMMENTS");
+  console.log("FOUND COMMENTS");
   Comment.find({}, function ( err, comments, count ){
     console.log(comments);
     res.render( '/comic/:comicid', {
@@ -390,10 +412,10 @@ console.log("FOUND COMMENTS");
     });
     console.log('found comment');
     //res.render('/newcomment/:comicid/:username', {
-  //  user: req.user,
-  //  title: 'Comment for comic',
-  //  comments: comments
-  //})
+    //  user: req.user,
+    //  title: 'Comment for comic',
+    //  comments: comments
+    //})
   });
 });
 
@@ -725,7 +747,7 @@ router.post('/comic/:comicid/subscribers/subscribe',function(req,res){
       }}}, function (err) {
         if (err) console.log('Error adding subscription!');
       });
-  }});
+    }});
 
   Comic.update({_id: cid}, {$addToSet:
   { subs: {
@@ -769,7 +791,7 @@ router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function
       function (err) {
         console.log("FOLLOWING: "+req.user.following);
         if (err) console.log("Error adding following!");
-  });
+      });
 
   Account.update(
       {username: profileUsername},
@@ -779,7 +801,7 @@ router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function
       }}},
       function (err) {
         if (err) console.log("Error adding follower!");
-  });
+      });
 
   res.redirect(req.get('referer'));
 });
@@ -795,14 +817,14 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
       function (err) {
         console.log("FOLLOWING: "+req.user.following);
         if (err) console.log("Error removing following!");
-  });
+      });
 
   Account.update(
       {username: profileUsername},
       {$pull: { followers: { followerUserName: subscriberUsername }}},
       function (err) {
         if (err) console.log("Error removing follower!");
-  });
+      });
 
   res.redirect(req.get('referer'));
 });

@@ -1,0 +1,39 @@
+//
+   Created by chuchutrainn on 2016-03-30.
+
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
+
+style.
+    .elt {
+        float: left;
+        padding-right: 50px;
+    }
+    ul.list-group {
+        height: 300px;
+        overflow-y: scroll;
+    }
+
+include navbar
+- var ctid = commentid;
+- var id = comid;
+- var cid = comicid;
+    - console.log("commentid from jade: " + ctid)
+    - console.log("id from jade: " + id)
+    - console.log("cid from jade: " + cid)
+
+        body
+            h2 Edit Comment
+            h4 Old comment: !{content}
+
+            form(role='form', action="/comment/save", method="post", style="max-width: 300px;")
+                .form-group
+                    textarea.form-control(name='newContent', cols="40", rows="3", placeholder='Please enter your new comment!', required='')
+                input.btn.btn-default(type="hidden", name="comment", value=ctid)
+                input.btn.btn-default(type="hidden", name="comicid", value=cid)
+                button.btn.btn-primary(type='submit') Save Changes
+                a(href='/comic/'+comicid)
+                    button.btn.btn-default(type="button") Cancel
+
+
+

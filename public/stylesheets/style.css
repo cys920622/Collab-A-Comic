@@ -6,3 +6,18 @@ body {
 p, a, li {
   color: #000000;
 }
+
+#comments {
+.name
+float left
+.created_at
+float right
+.content
+clear both
+}
+
+h8 {
+  color: grey;
+  font-size: small;
+}
+

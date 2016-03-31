@@ -20,6 +20,7 @@ style.
 include navbar
 - var comicid = cid;
 - var viewer = viewerName;
+- var comid = commid;
 
 body
     h1 #{title}
@@ -44,7 +45,8 @@ body
 
                     form(method="post", action='/comic/' + comicid + '/remove/')
                         input.btn.btn-default(type="hidden", name="panelloc", value=panel.panelloc)
-                        input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure?')", value="Remove")
+                        input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want to " +
+                        "delete the panel?')", value="Remove")
                 br
 
         body
@@ -71,26 +73,53 @@ body
             div.addCommentForm
             form(method='post', action='/newcomment/'+ comicid)
                 .form-group
-                    input.form-control(name="commenter", placeholder="Name", required='')
+                    //input.form-control(name="commenter", placeholder="Name", required='')
                     textarea.form-control(name="comment", cols="40", rows="3",
                     placeholder='Enter your comment here!', required='')
                 button.btn.btn-primary(type='submit') Submit
-            p
                 a(href='.')
                     button.btn.btn-default(type="button") Cancel
 
 
+
+
             #comments
+                if (comments != null)
+                    h2 Comments:
+                    hr
                 each comment in comments
-                        div.comment
-                            h4 Comment by:
-                            div.name= comment.commenter
-                            br
-                            h4 "
-                            div.content= comment.content
-                            h4 "
-                            div.created_at= comment.created
-                            hr
+                    - var click = '/user/' + comment.commenter
+                    div.comment
+                        //div.name= comment.commenter
+                        br
+                        h3 #{comment.content}
+                        h8 Commented on: #{comment.created}
+                        br
+                        h8 By #[a(href=click) #{comment.commenter}]
+                        br
+
+                    if (comment.commenter == viewerName)
+                        form(method="post", action='/comment/remove/')
+                            input.btn.btn-default(type="hidden", name="comment", value=comment._id)
+                            input.btn.btn-default(type="hidden", name="comicid", value=comicid)
+                            input.btn.btn-default(type="submit", onclick = "return confirm('Are you sure you want " +
+                            "to remove the comment?')", value="Remove")
+                    if (comment.commenter == viewerName)
+                        body
+                            a(href='/comment/' + comment._id + '/edit')
+                                input.btn.btn-default(type="hidden", name="comicid", value=comicid)
+                                button.btn.btn-default(type="button") Edit Comment
+                    div.comment
+                        hr
+
+
+
+
+                        //if (comment.commenter == viewerName)
+                        //    a(href='/comic/'+comicid+'/comment/'+comment._id+'/edit')
+                        //        input.btn.btn-default(type="hidden", name="comment", value=comment._id)
+                        //        input.btn.btn-default(type="submit", value= "Edit Comment")
+
         //body
         //    h2 Comments:
         //    #{comments}

@@ -1,0 +1,32 @@
+//
+   Created by danielchoi on 2016-03-24.
+
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
+link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
+
+include jadeCss
+include background
+
+
+nav.navbar.navbar-default.navbar-fixed-top
+    .container-fluid
+        .navbar-header
+            a.navbar-brand(href='/')
+                span.glyphicon.glyphicon-edit(aria-hidden='true')
+                |  Collab-A-Comic!
+br
+
+
+body
+    .elt
+        .panel.panel-default
+            .panel-body
+                form(method='POST')
+                    legend Forgot Password
+                    .form-group
+                        label(for='email') Email
+                        input.form-control(type='text', name='email', autofocus)
+                    button.btn.btn-primary(type='submit') Reset Password
+
+

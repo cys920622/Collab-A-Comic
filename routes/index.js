@@ -8,7 +8,10 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var async = require('async');
+var crypto = require('crypto');
 var Comment = require('../models/comment.ts');
+var ObjectId = require('mongoose').Types.ObjectId;
 //var db = app.mongoose.connection;
 // Postmark config
 var client = new postmark.Client("4ab236e2-b3e9-450c-bcdb-1ebed058ff7d");
@@ -70,6 +73,62 @@ router.get('/changepw/', isLoggedIn, function (req, res) {
     res.render('changepw', { user: req.user });
 });
 // GET change password page
+// http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/
+// GET forgot password page
+router.get('/forgot', function (req, res) {
+    res.render('forgot', {
+        user: req.user
+    });
+});
+// POST forgot password
+router.post('/forgot', function (req, res, next) {
+    async.waterfall([
+        function (done) {
+            crypto.randomBytes(20, function (err, buf) {
+                var token = buf.toString('hex');
+                done(err, token);
+            });
+        },
+        function (token, done) {
+            Account.findOne({ email: req.body.email }, function (err, user) {
+                if (!user) {
+                    req.flash('error', 'No account with that email address exists.');
+                    return res.redirect('/forgot');
+                }
+                user.resetPasswordToken = token;
+                user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+                user.save(function (err) {
+                    done(err, token, user);
+                });
+            });
+        },
+        function (token, user, done) {
+            client.sendEmail({
+                "From": "daniel.choi@alumni.ubc.ca",
+                "To": user.email,
+                "Subject": "Collab-A-Comic password reset",
+                "TextBody": 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                    'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                    'If you did not request this, please ignore this email and your password will remain unchanged. \n\nCheers, \nTeam Friendship"'
+            }, function (error, success) {
+                if (error) {
+                    console.error("Unable to send via postmark: " + error.message);
+                    return;
+                }
+                res.render('index', {
+                    title: "Collab-a-Comic!",
+                    message: "A password reset link has been sent to " + user.email
+                });
+                console.info("Postmark sent email to: " + req.body.email);
+            });
+        }
+    ], function (err) {
+        if (err)
+            return next(err);
+        res.redirect('/forgot');
+    });
+});
 /* GET homepage. */
 router.get('/homepage', isLoggedIn, function (req, res) {
     res.render('homepage', { user: req.user });
@@ -130,6 +189,85 @@ function sendConfEmail(req, res) {
         console.info("Postmark sent email to: " + req.body.email);
     });
 }
+// GET password reset
+router.get('/reset/:token', function (req, res) {
+    Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+        if (!user) {
+            res.render('index', {
+                title: "Collab-a-Comic!",
+                message: 'Password reset token is invalid or has expired.'
+            });
+        }
+        console.log('Loading reset for user: ' + user.username);
+        res.render('reset', {
+            user: req.user
+        });
+    });
+});
+// POST password reset
+router.post('/reset/:token', function (req, res) {
+    async.waterfall([
+        function (done) {
+            Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+                console.log('Resetting for user: ' + user.username);
+                if (!user) {
+                    console.log('Error resetting password - invalid or expired token');
+                    return res.redirect('back');
+                }
+                user.hash = req.body.password;
+                var iterations = 25000;
+                var keylen = 512;
+                var saltlen = 32;
+                crypto.randomBytes(saltlen, function (err, salt) {
+                    if (err) {
+                        throw err;
+                    }
+                    salt = new Buffer(salt).toString('hex');
+                    user.salt = salt;
+                    // https://masteringmean.com/lessons/46-Encryption-and-password-hashing-with-Nodejs
+                    crypto.pbkdf2(req.body.password, salt, iterations, keylen, 'sha256', function (err, hash) {
+                        if (err) {
+                            throw err;
+                        }
+                        user.hash = new Buffer(hash).toString('hex');
+                        console.log("SALT: " + user.salt);
+                        console.log("HASH: " + user.hash);
+                        user.save(function (err) {
+                            req.logIn(user, function (err) {
+                                done(err, user);
+                            });
+                        });
+                    });
+                });
+                console.log("NEW hash: " + user.hash);
+                user.resetPasswordToken = undefined;
+                user.resetPasswordExpires = undefined;
+            });
+        },
+        function (user, done) {
+            client.sendEmail({
+                "From": "daniel.choi@alumni.ubc.ca",
+                "To": user.email,
+                "Subject": "Your Collab-A-Comic password was reset",
+                "TextBody": 'Hello,\n\n' +
+                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.' +
+                    ' \n\nCheers, \nTeam Friendship"'
+            }, function (error, success) {
+                if (error) {
+                    console.error("Unable to send via postmark: " + error.message);
+                    return;
+                }
+                res.render('index', {
+                    title: "Collab-a-Comic!",
+                    message: 'Your password was reset.'
+                });
+                console.info("Postmark sent email to: " + user.email);
+            });
+        }
+    ], function (err) {
+        res.redirect('/');
+    });
+});
 // Multer file upload
 /* GET new comic page */
 router.get('/uploadtest', isLoggedIn, isContributor, function (req, res) {
@@ -235,7 +373,7 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
 router.get('/newcomment/:comicid', isLoggedIn, function (req, res) {
     console.log("FOUND COMMENTS");
     Comment.find({}, function (err, comments, count) {
-        console.log(comments);
+        //console.log(comments);
         res.render('/comic/:comicid', {
             title: 'Comment for Comic',
             comment: comments
@@ -248,17 +386,179 @@ router.get('/newcomment/:comicid', isLoggedIn, function (req, res) {
         //})
     });
 });
+//POST new comment
 router.post('/newcomment/:comicid', isLoggedIn, function (req, res) {
     console.log("entered comments");
     console.log("comment comicid: " + req.params.comicid);
-    new Comment({
-        commenter: req.body.commenter,
+    var comm = new Comment({
+        commenter: req.user.username,
         content: req.body.comment,
         created: Date.now(),
         comicid: req.params.comicid
-    }).save(function (err, comment, count) {
+    });
+    comm.save(function (err, comment, count) {
         res.redirect(req.get('referer'));
     });
+    Account.update({ _id: req.user._id }, { $push: { contributions: {
+                commentid: comm.id
+            } } }, function (err) {
+        if (err)
+            console.log("Error pushing comic to contributions!");
+    });
+});
+//REMOVE a comment
+router.post('/comment/remove/', isLoggedIn, function (req, res) {
+    //var comid = req.params.commid;
+    //console.log("commentid: " + comid);
+    var comment = req.body.comment;
+    console.log("comment object: " + comment);
+    var content = req.body.content;
+    console.log("comment content: " + content);
+    var comicid = req.body.comicid;
+    console.log("comicid: " + comicid);
+    //var splitcomment = comment.split(",");
+    ////console.log("splitcomment: "+splitcomment);
+    //var rightelem = splitcomment[5];
+    ////console.log("rightelem: "+rightelem);
+    //var aftersplit2 = rightelem.split(" ");
+    ////console.log("aftersplit2: " + aftersplit2);
+    //var lastone = aftersplit2[3];
+    //console.log("lastone: "+lastone);
+    //var jsond = JSON.parse(JSON.stringify(comment));
+    //console.log("jsond: " + jsond._id);
+    //console.log("jsond: " + jsond.commenter);
+    //console.log("The comment I am trying to delete with lower c: " + comment);
+    //console.log("Comment with cap C: " + Comment);
+    //var key = "_id";
+    //var value = comment["key"];
+    ////var ObjectId = Comment.ObjectId;
+    ////var commentid = new ObjectId(req.params.commentid);
+    ////console.log("please print my id: " + value.$oid);
+    //console.log("comment content:" + comment.content.toObject());
+    //var jsond = JSON.parse(comment);
+    //var _id = jsond['_id'];
+    //console.log("with brackets id:" + _id);
+    //console.log("parse comment._id:" + jsond);
+    //console.log("ID of comment I am trying to delete: " + jsond._id);
+    //console.log("id again: " + jsond.id);
+    //console.log("commenter of the comment i'm trying to delete: " + jsond.commenter);
+    //Comment.findOne({ _id: comment.id}, function(err,doc) {
+    //  var comment = doc.toObject();
+    //  delete comment.element;
+    //  console.log( comment );
+    //});
+    //var deleteme = Comment.findOne({_id: comment});
+    Comment.remove({ _id: comment }, function (err) {
+        if (err)
+            console.log('can\'t remove comment');
+    });
+    //{$pull: {
+    //  comment: comment
+    //}}), function (err) {
+    //if (err) console.log('can\'t remove comment');
+    //  };
+    res.redirect(req.get('referer'));
+});
+// GET comment editing page
+router.get('/comment/:commentid/edit', isLoggedIn, function (req, res) {
+    //var comment = req.body.commentid;
+    //console.log("comment: " + comment);
+    //var comment = req.params.comment;
+    //console.log("trying to see if i get all comment: " + comment);
+    //var commentBody = req.body.comment;
+    //console.log("comment body: " + commentBody);
+    var commentParams = req.params.commentid;
+    console.log("comment params: " + commentParams);
+    var commentContent = req.params.commentid;
+    var comicid = req.body.comicid;
+    console.log("comicid from editing: " + comicid);
+    //Comment.findById(comment, function (err, doc) {
+    //  if (err) {
+    //    console.log("Cannot find comment");
+    //  } else {
+    //    var comment = doc;
+    //    console.log("I've found my comment?");
+    Comment.findById(commentParams, function (err, doc) {
+        if (err) {
+            console.log("CANNOT FIND COMMENT");
+        }
+        else {
+            res.render('editcomment', {
+                user: req.user,
+                commentid: commentParams,
+                content: doc.content,
+                comicid: doc.comicid
+            });
+            console.log("doc.content: " + doc.content);
+            console.log("doc.comicid: " + doc.comicid);
+        }
+    });
+    //console.log("editdis: " + editdis);
+    ////console.log("content: "+ comment.content);
+    ////    //    'editcomment', {
+    ////    //  user: req.user,
+    ////    //  commenterName: comment.commenter,
+    ////    //  editorName: req.user.username,
+    ////    //  content: comment.content,
+    ////    //  created: comment.created,
+    ////    //  comid: req.params.commentid,
+    ////    //
+    ////    //});
+    ////    //var comment = req.body.comment;
+    ////    //console.log("my comment is: " + comment);
+    ////    //var commentid = req.body.commentid;
+    ////    //console.log("my commentid is: " + commentid);
+    ////    //var comicid = req.body.comicid;
+    ////    //console.log("my comicid is: " + comicid);
+    ////    //var withdot = comment._id;
+    ////    //console.log("withdot: " + withdot);
+    ////    //var comment = req.body.comment;
+    ////    //console.log("my comment: "+comment);
+    //////  };
+    //////});
+});
+// POST comment edits
+router.post('/comment/save', isLoggedIn, function (req, res) {
+    //var commentid3 = req.params.commentid;
+    //console.log("my commentid2: " + commentid3);
+    //var commentid = req.params.ctid;
+    //console.log("my comment content: "+commentid);
+    //var commentid2 = req.params.comment;
+    //console.log("my commentid2 from js: " + commentid2);
+    var commentid = req.body.comment;
+    //console.log("my commentid4: " +commentid4);
+    var newComment = req.body.newContent;
+    //console.log("my newComment from js: " + newComment);
+    var comicid = req.body.comicid;
+    console.log("comicid from js: " + comicid);
+    if (req.body.newContent) {
+        newComment = req.body.newContent;
+    }
+    console.log("req.body.content: " + req.body.content);
+    Comment.update({ _id: commentid }, {
+        $set: {
+            content: newComment,
+            created: Date.now()
+        }
+    }, function (err) {
+        if (err)
+            console.log("something wrong with editing comment");
+        res.redirect('/comic/' + comicid);
+    });
+    //Comment.findById(commentid, function(err, doc) {
+    //  if (err) {
+    //    console.log("Cannot find comment");
+    //  } else {
+    //    var comment = doc;
+    //    console.log("I've found my comment?");
+    //res.render('comment', {
+    //  user: req.user,
+    //  commenterName: doc.commenter,
+    //  editorName: req.user.username,
+    //  content: doc.content,
+    //  created: doc.created,
+    //  comid: req.params.commentid,
+    //});
 });
 // GET profile editing page
 router.get('/user/:username/edit', isLoggedIn, function (req, res) {
@@ -361,7 +661,7 @@ router.get('/comic/:comicid', isLoggedIn, function (req, res) {
         Comment.find({
             'comicid': req.params.comicid
         }, function (err, comments, count) {
-            console.log(comments);
+            //console.log(comments);
             //res.render('/comic/:comicid', {
             //  title: 'Comment for Comic',
             //});
@@ -446,6 +746,9 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
 // Function to create homepage notification
 function createNotification(recipUsername, actorUsername, comic, cid, notificationType) {
     var textBody;
+    if (actorUsername == recipUsername) {
+        return;
+    }
     if (notificationType === "newPanel") {
         textBody = actorUsername + " contributed a new panel to " + comic;
     }

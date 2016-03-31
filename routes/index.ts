@@ -77,6 +77,55 @@ router.post('/login', passport.authenticate('local-login', {
     }
 ));
 
+/* POST change password form */
+router.post('/changepwlogin/', passport.authenticate('local-login', {
+      successRedirect: '/changepw/',
+      failureRedirect: '/homepage',
+    }
+));
+
+// GET change password page
+router.get('/changepw/', isLoggedIn, function (req, res) {
+  res.render('changepw', {user: req.user});
+});
+
+router.post('/changepw/', isLoggedIn, (function (req, res) {
+  Account.findOne({ username: req.user.username }, function(err, user) {
+    console.log('Resetting for user: ' + user.username);
+    if (!user) {
+      console.log('Error changing password');
+      return res.redirect('back');
+    }
+
+    user.hash = req.body.password;
+
+    var iterations = 25000;
+    var keylen = 512;
+    var saltlen = 32;
+
+    crypto.randomBytes(saltlen, function (err, salt) {
+      if (err) { throw err; }
+      salt = new Buffer(salt).toString('hex');
+      user.salt = salt;
+
+      // https://masteringmean.com/lessons/46-Encryption-and-password-hashing-with-Nodejs
+      crypto.pbkdf2(req.body.password, salt, iterations, keylen, 'sha256',
+          function (err, hash) {
+            if (err) { throw err; }
+            user.hash = new Buffer(hash).toString('hex');
+            //console.log("SALT: " + user.salt);
+            //console.log("HASH: "+user.hash);
+            user.save(function(err) {
+              req.logIn(user, function(err) {
+              });
+            });
+            return res.redirect('/homepage/');
+          });
+    });
+  });
+}));
+
+// GET reset password page
 // http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/
 // GET forgot password page
 router.get('/forgot', function(req, res) {

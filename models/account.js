@@ -43,6 +43,10 @@ var Account = new Schema({
             maxItems: Number
         }],
     description: String,
+    comments: [{
+            commid: String,
+            cid: String
+        }],
     resetPasswordToken: String,
     resetPasswordExpires: Date
 });

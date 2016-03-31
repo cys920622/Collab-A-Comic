@@ -55,6 +55,12 @@ body
         form(role='form', action="/user/"+user.username+'/delete/',method="post", style='max-width: 300px;')
             .form-group
                 button.btn.btn-danger(type='submit', onclick = "return confirm('Are you sure you want to permanently delete your profile?')") Delete account
+        form(role='form', action='/changepwlogin/',method="post")
+            p
+                input.form-control(type='text', name="username", placeholder='Enter Username')
+            p
+                input.form-control(type='password', name="password", placeholder='Enter old Password')
+            button.btn.btn-default(type='submit') Change password
         p
             a(href='.')
                 button.btn.btn-default(type="button") Cancel

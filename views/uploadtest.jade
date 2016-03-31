@@ -5,17 +5,20 @@
 link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 
-include jadeCss
+include background
+include loggedInCss
 include navbar
 
 
 body
     .elt
-        h4 Create a new comic
-        form(method="post",enctype="multipart/form-data",action="/newcomic")
-            p
-                input.form-control(type="text",name="title",placeholder="Your comic's title")
-            p
-                input.btn.btn-default.btn-file(type="file", name="upl")
-            p
-                input.btn.btn-default(type='submit')
+        .panel.panel-default
+            .panel-body
+                h4 Create a new comic
+                form(method="post",enctype="multipart/form-data",action="/newcomic")
+                    p
+                        input.form-control(type="text",name="title",placeholder="Your comic's title")
+                    p
+                        input.btn.btn-default.btn-file(type="file", name="upl")
+                    p
+                        input.btn.btn-default(type='submit')

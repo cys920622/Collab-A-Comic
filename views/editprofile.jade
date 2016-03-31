@@ -3,64 +3,60 @@
 link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 
-style.
-    .elt {
-        float: left;
-        padding-right: 50px;
-    }
-    ul.list-group {
-        height: 300px;
-        overflow-y: scroll;
-    }
-
+include background
+include loggedInCss
 include navbar
 
 body
-    h4 Edit profile
     .elt
-        img(src=user.profilephotopath, width='300')
-        form(method="post",enctype="multipart/form-data",action="/profile")
-            p
-                input.btn.btn-default.btn-(type="file",name="upl")
-            p
-                input.btn.btn-default(type="submit")
-            p
-                img(src=image)
-        h4 Edit account details
+        .panel.panel-default
+            .panel-body
+                h3 Edit profile
+                .elt
+                    img(src=user.profilephotopath, width='300')
+                    form(method="post",enctype="multipart/form-data",action="/profile")
+                        p
+                            input.btn.btn-default.btn-(type="file",name="upl")
+                        p
+                            input.btn.btn-default(type="submit")
+                        p
+                            img(src=image)
+                    h4 Edit account details
 
-        - var fName = user.firstName;
-        - var lName = user.lastName;
-        - var uEmail = user.email;
-        - var uDescrip = user.description;
-        - var emailNotifsOn = user.emailSetting;
-        form(role='form', action="/user/"+user.username+'/edit/',method="post", style='max-width: 300px;')
-            .form-group
-                input.form-control(type='text', name="firstName", placeholder='First name: '+fName)
-            .form-group
-                input.form-control(type='text', name="lastName", placeholder='Last name: '+lName)
-            .form-group
-                input.form-control(type='text', name="email", placeholder='Email: '+uEmail)
-            .form-group
-                textarea.form-control(name="description", cols="40", rows="3",
-                placeholder='Description: '+uDescrip)
-            .form-group
-                h4 Email notifications
-                input(type='radio', name="emailsOn", value='true', checked=emailNotifsOn)
-                |  Send me email notifications
-                br
-                input(type='radio', name="emailsOn", value='false', checked=!emailNotifsOn)
-                |  Turn all email notifications off
-            button.btn.btn-primary(type='submit') Submit
-
-        form(role='form', action="/user/"+user.username+'/delete/',method="post", style='max-width: 300px;')
-            .form-group
-                button.btn.btn-danger(type='submit', onclick = "return confirm('Are you sure you want to permanently delete your profile?')") Delete account
-        form(role='form', action='/changepwlogin/',method="post")
-            p
-                input.form-control(type='text', name="username", placeholder='Enter Username')
-            p
-                input.form-control(type='password', name="password", placeholder='Enter old Password')
-            button.btn.btn-default(type='submit') Change password
-        p
-            a(href='.')
-                button.btn.btn-default(type="button") Cancel
+                    - var fName = user.firstName;
+                    - var lName = user.lastName;
+                    - var uEmail = user.email;
+                    - var uDescrip = user.description;
+                    - var emailNotifsOn = user.emailSetting;
+                    form(role='form', action="/user/"+user.username+'/edit/',method="post", style='max-width: 300px;')
+                        .form-group
+                            input.form-control(type='text', name="firstName", placeholder='First name: '+fName)
+                        .form-group
+                            input.form-control(type='text', name="lastName", placeholder='Last name: '+lName)
+                        .form-group
+                            input.form-control(type='text', name="email", placeholder='Email: '+uEmail)
+                        .form-group
+                            textarea.form-control(name="description", cols="40", rows="3",
+                            placeholder='Description: '+uDescrip)
+                        .form-group
+                            h4 Email notifications
+                            input(type='radio', name="emailsOn", value='true', checked=emailNotifsOn)
+                            |  Send me email notifications
+                            br
+                            input(type='radio', name="emailsOn", value='false', checked=!emailNotifsOn)
+                            |  Turn all email notifications off
+                        button.btn.btn-primary(type='submit') Submit changes
+                .elt
+                    h4 Change password
+                    form(role='form', action='/changepwlogin/',method="post")
+                        p
+                            input.form-control(type='text', name="username", placeholder='Enter Username')
+                        p
+                            input.form-control(type='password', name="password", placeholder='Enter old Password')
+                        button.btn.btn-default(type='submit') Change password
+                    form(role='form', action="/user/" + user.username + '/delete/',method="post", style='max-width: 300px;')
+                        .form-group
+                            button.btn.btn-danger(type='submit', onclick = "return confirm('Are you sure you want to permanently delete your profile?')") Delete account
+                    p
+                        a(href='.')
+                            button.btn.btn-default(type="button") Cancel

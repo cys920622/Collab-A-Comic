@@ -3,26 +3,24 @@
 link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 
+include background
+include loggedInCss
 include navbar
 
-style.
-    .elt {
-        float: left;
-    }
-    ul.list-group {
-        height: 300px;
-        overflow-y: scroll;
-    }
+
 
 body
     .elt
-        h4 Notifications
-        ul.list-group
-            - var notificationArray = user.notifications.reverse();
-            - var i = parseFloat(10);
-            each n in notificationArray
-                if i > 0
-                    - var link = "/comic/"+n.notiCid;
-                    li.list-group-item
-                        a(href=link) #{n.notificationText}
-                    - i = i-parseFloat(1);
+        .panel.panel-default
+            .panel-body
+                h4 Notifications
+                .elt
+                    ul.list-group
+                        - var notificationArray = user.notifications.reverse();
+                        - var i = parseFloat(10);
+                        each n in notificationArray
+                            if i > 0
+                                - var link = "/comic/"+n.notiCid;
+                                li.list-group-item
+                                    a(href=link) #{n.notificationText}
+                                - i = i-parseFloat(1);

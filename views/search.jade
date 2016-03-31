@@ -1,23 +1,28 @@
 //
    Created by Ford on 3/9/16.
 
+include background
+include loggedInCss
 include navbar
-include jadeCss
 
 body
     .elt
-        h4 In comics
-        ul.list-group
-        each comic in comics
-            - var title = comic.title;
-            - var link = '/comic/'+comic.id;
-            li.list-group-item
-                a(href=link) #{title}
-    .elt
-        h4 In users
-        ul.list-group
-        each account in accounts
-            - var name = account.username;
-            - var link = '/user/'+name;
-            li.list-group-item
-                a(href=link) #{name}
+        .panel.panel-default
+            .panel-body
+                h2 Search results
+                .elt
+                    h4 In comics
+                    ul.list-group
+                    each comic in comics
+                        - var title = comic.title;
+                        - var link = '/comic/'+comic.id;
+                        li.list-group-item
+                            a(href=link) #{title}
+                .elt
+                    h4 In users
+                    ul.list-group
+                    each account in accounts
+                        - var name = account.username;
+                        - var link = '/user/'+name;
+                        li.list-group-item
+                            a(href=link) #{name}

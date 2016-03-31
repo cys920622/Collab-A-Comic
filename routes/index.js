@@ -8,7 +8,7 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
-var async = require('async');
+//var async = require('async');
 var crypto = require('crypto');
 var Comment = require('../models/comment.ts');
 var ObjectId = require('mongoose').Types.ObjectId;
@@ -342,7 +342,8 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/' }
         subs: [{
                 subscriber: req.user.username,
                 subscriberEmail: req.user.email
-            }]
+            }],
+        date: Date.now()
     });
     c.save();
     Account.update({ _id: req.user._id }, { $push: { contributions: {
@@ -817,7 +818,8 @@ router.post('/newpanel/:comicid', multer({ dest: './public/uploads/panels/' }).s
         $push: {
             imgarray: {
                 author: req.user.username,
-                panelloc: imgloc
+                panelloc: imgloc,
+                uploaded: Date.now()
             }
         }
     }, function (err) {

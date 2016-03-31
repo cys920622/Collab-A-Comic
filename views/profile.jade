@@ -4,101 +4,93 @@ link(href='/css/homepage.css', rel='stylesheet')
 link(rel='stylesheet', href='/stylesheets/style.css')
 
 include navbar
+include background
+include loggedInCss
 
-style.
-    .elt {
-        float: left;
-        padding-right: 50px;
-    }
-    ul.list-group {
-        width: 300px;
-        max-height: 250px;
-        overflow-y: scroll;
-    }
-    .panel.panel-default {
-        width: 300px;
-    }
 
 body
-    - var profileUsername = viewed.username;
-    - var viewerUsername = user.username;
-    - var isViewerOwner = profileUsername == viewerUsername;
-    - console.log(isSubbed);
-    h2 #{viewed.firstName}
-    body
-        if !isViewerOwner
-            if isSubbed
-                form(method="post", action='/user/'+profileUsername+'/subscribers/unsubscribe/')
-                    input.btn.btn-default(type="submit", value="Unsubscribe")
-            else
-                form(method="post", action='/user/'+profileUsername+'/subscribers/subscribe/')
-                    input.btn.btn-default(type="submit", value="Subscribe")
-
     .elt
-        img(src=profilephoto, width='300')
+        .panel.panel-default
+            .panel-body
+                - var profileUsername = viewed.username;
+                - var viewerUsername = user.username;
+                - var isViewerOwner = profileUsername == viewerUsername;
+                - console.log(isSubbed);
+                h2 #{viewed.firstName}
+                body
+                    if !isViewerOwner
+                        if isSubbed
+                            form(method="post", action='/user/'+profileUsername+'/subscribers/unsubscribe/')
+                                input.btn.btn-default(type="submit", value="Unsubscribe")
+                        else
+                            form(method="post", action='/user/'+profileUsername+'/subscribers/subscribe/')
+                                input.btn.btn-default(type="submit", value="Subscribe")
+
+                .elt
+                    img(src=profilephoto, width='300')
 
 
 
-        h4 Basic information
-        ul.list-group
-            li.list-group-item
-                if (viewed.isContributor == 1)
-                    b Contributor
-                if (viewed.isContributor == 0)
-                    b Viewer
-            li.list-group-item
-                | Username: #{viewed.username}
-            li.list-group-item
-                | First name: #{viewed.firstName}
-            li.list-group-item
-                | Last name: #{viewed.lastName}
-            li.list-group-item
-                | Email: #{viewed.email}
+                    h4 Basic information
+                    ul.list-group
+                        li.list-group-item
+                            if (viewed.isContributor == 1)
+                                b Contributor
+                            if (viewed.isContributor == 0)
+                                b Viewer
+                        li.list-group-item
+                            | Username: #{viewed.username}
+                        li.list-group-item
+                            | First name: #{viewed.firstName}
+                        li.list-group-item
+                            | Last name: #{viewed.lastName}
+                        li.list-group-item
+                            | Email: #{viewed.email}
 
-    .elt
-        h4 List of contributions:
-        ul.list-group
-            each comic in comics
-                - var title = comic.title;
-                - var link = '/comic/'+comic.cid;
-                li.list-group-item
-                    a(href=link) #{title}
+                    if (viewed)
+                        h4 Description:
+                        - var descripString = viewed.description;
+                        body
+                            .panel.panel-default
+                                .panel-body
+                                    | #{descripString}
+                .elt
+                    h4 List of contributions:
+                    ul.list-group
+                        each comic in comics
+                            - var title = comic.title;
+                            - var link = '/comic/'+comic.cid;
+                            li.list-group-item
+                                a(href=link) #{title}
 
-        - var subscribers = viewed.followers;
-        h4 Followers:
-        ul.list-group
-            each u in subscribers
-                - var follower = u.followerUserName;
-                li.list-group-item
-                    a(href='/user/'+follower) #{follower}
+                    - var subscribers = viewed.followers;
+                    h4 Followers:
+                    ul.list-group
+                        each u in subscribers
+                            - var follower = u.followerUserName;
+                            li.list-group-item
+                                a(href='/user/'+follower) #{follower}
 
-        - var followingU = viewed.following;
-        h4 Following:
-        ul.list-group
-            each f in followingU
-                - var fUname = f.followedUserName;
-                li.list-group-item
-                    a(href='/user/' + fUname) #{fUname}
+                    - var followingU = viewed.following;
+                    h4 Following:
+                    ul.list-group
+                        each f in followingU
+                            - var fUname = f.followedUserName;
+                            li.list-group-item
+                                a(href='/user/' + fUname) #{fUname}
 
 
-        h4 Subscriptions:
-        ul.list-group
-            - var subscriptions = viewed.subs;
-            each c in subscriptions
-                - var subbedComic = c.subCid;
-                - var subTitle = c.subComicName;
-                - var cLink = '/comic/'+subbedComic;
-                li.list-group-item
-                    a(href=cLink) #{subTitle}
+                    h4 Subscriptions:
+                    ul.list-group
+                        - var subscriptions = viewed.subs;
+                        each c in subscriptions
+                            - var subbedComic = c.subCid;
+                            - var subTitle = c.subComicName;
+                            - var cLink = '/comic/'+subbedComic;
+                            li.list-group-item
+                                a(href=cLink) #{subTitle}
 
-        if (viewed)
-            h4 Description:
-            - var descripString = viewed.description;
-            body
-                .panel.panel-default
-                    .panel-body
-                        | #{descripString}
-        if isViewerOwner
-            body
-                a(href='/user/' + user.username + '/edit')
-                    button.btn.btn-default(type="button") Edit profile
+                    if isViewerOwner
+                        body
+                            a(href='/user/' + user.username + '/edit')
+                                button.btn.btn-default(type="button") Edit profile

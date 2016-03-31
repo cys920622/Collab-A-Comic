@@ -8,6 +8,11 @@ var postmark = require("postmark");
 var multer = require('multer');
 var mongoose = require('mongoose');
 var Profile = require('../models/profile.ts');
+var async = require('async');
+var crypto = require('crypto');
+
+
+
 var Comment = require('../models/comment.ts');
 //var db = app.mongoose.connection;
 
@@ -71,6 +76,67 @@ router.post('/login', passport.authenticate('local-login', {
     }
 ));
 
+// http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/
+// GET forgot password page
+router.get('/forgot', function(req, res) {
+  res.render('forgot', {
+    user: req.user
+  });
+});
+
+
+// POST forgot password
+router.post('/forgot', function(req, res, next) {
+  async.waterfall([
+    function(done) {
+      crypto.randomBytes(20, function(err, buf) {
+        var token = buf.toString('hex');
+        done(err, token);
+      });
+    },
+    function(token, done) {
+      Account.findOne({ email: req.body.email }, function(err, user) {
+        if (!user) {
+          req.flash('error', 'No account with that email address exists.');
+          return res.redirect('/forgot');
+        }
+
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+        user.save(function(err) {
+          done(err, token, user);
+        });
+      });
+    },
+    function(token, user, done) {
+      client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": user.email,
+        "Subject": "Collab-A-Comic password reset",
+        "TextBody": 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+        'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+        'If you did not request this, please ignore this email and your password will remain unchanged. \n\nCheers, \nTeam Friendship"'
+      }, function(error, success) {
+        if(error) {
+          console.error("Unable to send via postmark: " + error.message);
+          return;
+        }
+        res.render('index', {
+          title: "Collab-a-Comic!",
+          message: "A password reset link has been sent to "+user.email
+        });
+        console.info("Postmark sent email to: " + req.body.email);
+      });
+    }
+  ], function(err) {
+    if (err) return next(err);
+    res.redirect('/forgot');
+  });
+});
+
+
 /* GET homepage. */
 router.get('/homepage', isLoggedIn, function (req, res) {
   res.render('homepage', {user: req.user});
@@ -132,6 +198,91 @@ function sendConfEmail(req, res) {
     console.info("Postmark sent email to: " + req.body.email);
   });
 }
+
+// GET password reset
+router.get('/reset/:token', function(req, res) {
+  Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+    if (!user) {
+      res.render('index', {
+        title: "Collab-a-Comic!",
+        message: 'Password reset token is invalid or has expired.'
+      });
+    }
+    console.log('Loading reset for user: ' + user.username);
+    res.render('reset', {
+      user: req.user
+    });
+  });
+});
+
+
+// POST password reset
+router.post('/reset/:token', function(req, res) {
+  async.waterfall([
+    function(done) {
+      Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+        console.log('Resetting for user: ' + user.username);
+        if (!user) {
+          console.log('Error resetting password - invalid or expired token');
+          return res.redirect('back');
+        }
+
+        user.hash = req.body.password;
+
+        var iterations = 25000;
+        var keylen = 512;
+        var saltlen = 32;
+
+        crypto.randomBytes(saltlen, function (err, salt) {
+          if (err) { throw err; }
+          salt = new Buffer(salt).toString('hex');
+          user.salt = salt;
+
+          // https://masteringmean.com/lessons/46-Encryption-and-password-hashing-with-Nodejs
+          crypto.pbkdf2(req.body.password, salt, iterations, keylen, 'sha256',
+              function (err, hash) {
+                if (err) { throw err; }
+                user.hash = new Buffer(hash).toString('hex');
+                console.log("SALT: " + user.salt);
+                console.log("HASH: "+user.hash);
+                user.save(function(err) {
+                  req.logIn(user, function(err) {
+                    done(err, user);
+                  });
+                });
+              });
+        });
+
+        console.log("NEW hash: " + user.hash);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+      });
+    },
+    function(user, done) {
+      client.sendEmail({
+        "From": "daniel.choi@alumni.ubc.ca",
+        "To": user.email,
+        "Subject": "Your Collab-A-Comic password was reset",
+        "TextBody": 'Hello,\n\n' +
+        'This is a confirmation that the password for your account ' + user.email + ' has just been changed.' +
+        ' \n\nCheers, \nTeam Friendship"'
+      }, function(error, success) {
+        if(error) {
+          console.error("Unable to send via postmark: " + error.message);
+          return;
+        }
+        res.render('index', {
+          title: "Collab-a-Comic!",
+          message: 'Your password was reset.'
+        });
+        console.info("Postmark sent email to: " + user.email);
+      });
+    }
+  ], function(err) {
+    res.redirect('/');
+  });
+});
 
 // Multer file upload
 /* GET new comic page */
@@ -235,24 +386,24 @@ router.get('/user/:username', isLoggedIn, function (req, res) {
   var viewerIsSubbed = checkSub(req.params.username, req.user.following);
 
   Account.findOne({username: req.params.username}, function(err, doc) {
-    if (err) {
-      console.log('User not found.');
+        if (err) {
+          console.log('User not found.');
         } else {
           //var account = doc;
           //console.log(doc);
-                res.render('profile', {
-                  isSubbed: viewerIsSubbed,
-                  viewed: doc,
-                  comics: doc.contributions,
-                  user: req.user,
-                  profilephoto: doc.profilephotopath,
-                });
-          }
+          res.render('profile', {
+            isSubbed: viewerIsSubbed,
+            viewed: doc,
+            comics: doc.contributions,
+            user: req.user,
+            profilephoto: doc.profilephotopath,
+          });
         }
-)});
+      }
+  )});
 
 router.get('/newcomment/:comicid', isLoggedIn, function(req, res) {
-console.log("FOUND COMMENTS");
+  console.log("FOUND COMMENTS");
   Comment.find({}, function ( err, comments, count ){
     console.log(comments);
     res.render( '/comic/:comicid', {
@@ -261,10 +412,10 @@ console.log("FOUND COMMENTS");
     });
     console.log('found comment');
     //res.render('/newcomment/:comicid/:username', {
-  //  user: req.user,
-  //  title: 'Comment for comic',
-  //  comments: comments
-  //})
+    //  user: req.user,
+    //  title: 'Comment for comic',
+    //  comments: comments
+    //})
   });
 });
 
@@ -488,6 +639,9 @@ function sendSubscriptionEmail(recipEmail, recipUsername, actorUsername, comic, 
 // Function to create homepage notification
 function createNotification(recipUsername, actorUsername, comic, cid, notificationType) {
   var textBody;
+  if (actorUsername == recipUsername) {
+    return;
+  }
   if (notificationType === "newPanel") {
     textBody = actorUsername+" contributed a new panel to "+comic
   }
@@ -509,6 +663,7 @@ function createNotification(recipUsername, actorUsername, comic, cid, notificati
         actor: actorUsername,
         comicName: comic,
         notiCid: cid
+        //maxItems: 10,
       }}},
       function (err) {
         if (err) console.log("Error adding follower!");
@@ -592,7 +747,7 @@ router.post('/comic/:comicid/subscribers/subscribe',function(req,res){
       }}}, function (err) {
         if (err) console.log('Error adding subscription!');
       });
-  }});
+    }});
 
   Comic.update({_id: cid}, {$addToSet:
   { subs: {
@@ -636,7 +791,7 @@ router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function
       function (err) {
         console.log("FOLLOWING: "+req.user.following);
         if (err) console.log("Error adding following!");
-  });
+      });
 
   Account.update(
       {username: profileUsername},
@@ -646,7 +801,7 @@ router.post('/user/:profileUsername/subscribers/subscribe', isLoggedIn, function
       }}},
       function (err) {
         if (err) console.log("Error adding follower!");
-  });
+      });
 
   res.redirect(req.get('referer'));
 });
@@ -662,14 +817,14 @@ router.post('/user/:profileUsername/subscribers/unsubscribe', isLoggedIn, functi
       function (err) {
         console.log("FOLLOWING: "+req.user.following);
         if (err) console.log("Error removing following!");
-  });
+      });
 
   Account.update(
       {username: profileUsername},
       {$pull: { followers: { followerUserName: subscriberUsername }}},
       function (err) {
         if (err) console.log("Error removing follower!");
-  });
+      });
 
   res.redirect(req.get('referer'));
 });

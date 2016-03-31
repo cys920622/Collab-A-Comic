@@ -203,16 +203,34 @@ router.post('/reset/:token', function (req, res) {
                     console.log('Error resetting password - invalid or expired token');
                     return res.redirect('back');
                 }
-                console.log('OLD password: ' + user.password);
-                console.log('NEW password: ' + req.body.password);
-                user.password = req.body.password;
-                user.resetPasswordToken = undefined;
-                user.resetPasswordExpires = undefined;
-                user.save(function (err) {
-                    req.logIn(user, function (err) {
-                        done(err, user);
+                user.hash = req.body.password;
+                var iterations = 25000;
+                var keylen = 512;
+                var saltlen = 32;
+                crypto.randomBytes(saltlen, function (err, salt) {
+                    if (err) {
+                        throw err;
+                    }
+                    salt = new Buffer(salt).toString('hex');
+                    user.salt = salt;
+                    // https://masteringmean.com/lessons/46-Encryption-and-password-hashing-with-Nodejs
+                    crypto.pbkdf2(req.body.password, salt, iterations, keylen, 'sha256', function (err, hash) {
+                        if (err) {
+                            throw err;
+                        }
+                        user.hash = new Buffer(hash).toString('hex');
+                        console.log("SALT: " + user.salt);
+                        console.log("HASH: " + user.hash);
+                        user.save(function (err) {
+                            req.logIn(user, function (err) {
+                                done(err, user);
+                            });
+                        });
                     });
                 });
+                console.log("NEW hash: " + user.hash);
+                user.resetPasswordToken = undefined;
+                user.resetPasswordExpires = undefined;
             });
         },
         function (user, done) {

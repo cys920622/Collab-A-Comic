@@ -269,7 +269,7 @@ console.log("FOUND COMMENTS");
   });
 });
 
-
+//POST new comment
 router.post('/newcomment/:comicid', isLoggedIn, function(req, res) {
   console.log("entered comments");
   console.log("comment comicid: " + req.params.comicid);
@@ -342,34 +342,105 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
   res.redirect(req.get('referer'));
 });
 
+
 // GET comment editing page
-router.get('/comic/:comicid/comment/:username/edit', isLoggedIn, function(req, res) {
-  res.render('editcomment', {
-    user: req.user
-  })
-  //var comment = req.body.comment;
-  //console.log("my comment: "+comment);
+router.get('/comment/:commentid/edit', isLoggedIn, function(req, res) {
+  //var comment = req.body.commentid;
+  //console.log("comment: " + comment);
+  //var comment = req.params.comment;
+  //console.log("trying to see if i get all comment: " + comment);
+  //var commentBody = req.body.comment;
+  //console.log("comment body: " + commentBody);
+  var commentParams = req.params.commentid;
+  console.log("comment params: " + commentParams);
+  var commentContent = req.params.commentid
+  //Comment.findById(comment, function (err, doc) {
+  //  if (err) {
+  //    console.log("Cannot find comment");
+  //  } else {
+  //    var comment = doc;
+  //    console.log("I've found my comment?");
+  Comment.findById(commentParams, function(err, doc) {
+    if (err) {
+      console.log("CANNOT FIND COMMENT");
+    } else {
+      res.render('editcomment', {
+        user: req.user,
+        commentid: commentParams,
+        content: doc.content,
+        //comment: doc.comment
+      });
+      console.log("doc.content: "+doc.content);
+      //console.log("doc.comment: "+doc.comment);
+
+    }});
+  //console.log("editdis: " + editdis);
+  ////console.log("content: "+ comment.content);
+  ////    //    'editcomment', {
+  ////    //  user: req.user,
+  ////    //  commenterName: comment.commenter,
+  ////    //  editorName: req.user.username,
+  ////    //  content: comment.content,
+  ////    //  created: comment.created,
+  ////    //  comid: req.params.commentid,
+  ////    //
+  ////    //});
+  ////    //var comment = req.body.comment;
+  ////    //console.log("my comment is: " + comment);
+  ////    //var commentid = req.body.commentid;
+  ////    //console.log("my commentid is: " + commentid);
+  ////    //var comicid = req.body.comicid;
+  ////    //console.log("my comicid is: " + comicid);
+  ////    //var withdot = comment._id;
+  ////    //console.log("withdot: " + withdot);
+  ////    //var comment = req.body.comment;
+  ////    //console.log("my comment: "+comment);
+  //////  };
+  //////});
 });
 
 
 // POST comment edits
-router.post('/comic/:comicid/comment/:commentid/edit', isLoggedIn, function(req, res) {
-var commentid = req.params.commentid;
+router.post('/comment/save', isLoggedIn, function(req, res) {
+  var commentid3 = req.params.commentid;
+  console.log("my commentid2: " + commentid3);
+  var commentid = req.params.ctid;
   console.log("my comment content: "+commentid);
-  Comment.findById(commentid, function(err, doc) {
-    if (err) {
-      console.log("Cannot find comment");
-    } else {
-      var comment = doc;
-      console.log("I've found my comment?");
-      res.render('comment', {
-        commenterName: doc.commenter,
-        editorName: req.user.username,
-        content: doc.content,
-        created: doc.created,
-        comid: req.params.commentid
-    });
-  }});
+  var commentid2 = req.params.comment;
+  console.log("my commentid2 from js: " + commentid2);
+  var commentid4 = req.body.comment;
+  console.log("my commentid4: " +commentid4);
+  var newComment = req.body.newContent;
+  console.log("my newComment from js: " + newComment);
+  if (req.body.newContent) {
+    newComment = req.body.newContent;
+  }
+  console.log("req.body.content: " + req.body.content);
+
+  Comment.update({_id: commentid4}, {
+    $set: {
+      content: newComment
+    }
+  }, function (err) {
+    if (err)
+    console.log("something wrong with editing comment");
+    res.redirect(req.get('referer'));
+  }
+  )
+  //Comment.findById(commentid, function(err, doc) {
+  //  if (err) {
+  //    console.log("Cannot find comment");
+  //  } else {
+  //    var comment = doc;
+  //    console.log("I've found my comment?");
+      //res.render('comment', {
+      //  user: req.user,
+      //  commenterName: doc.commenter,
+      //  editorName: req.user.username,
+      //  content: doc.content,
+      //  created: doc.created,
+      //  comid: req.params.commentid,
+    //});
 });
 
 

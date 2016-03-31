@@ -3,17 +3,21 @@
  */
 // Passport tutorial: http://bit.ly/1TNXvgG
 var mongoose = require('mongoose');
+var bcrypt = require('bcrypt-nodejs');
+var crypto = require('crypto');
 var Comic = require('./comic.ts');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 var Account = new Schema({
+    salt: String,
+    hash: String,
     firstName: String,
     lastName: String,
     profilephotopath: String,
     email: String,
     emailSetting: Boolean,
     username: String,
-    password: String,
+    //password: String,
     isContributor: Boolean,
     contributions: [{
             cid: String,
@@ -35,9 +39,12 @@ var Account = new Schema({
             notificationText: String,
             actor: String,
             comicName: String,
-            notiCid: String
+            notiCid: String,
+            maxItems: Number
         }],
-    description: String
+    description: String,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 });
 Account.plugin(passportLocalMongoose);
 module.exports = mongoose.model('Account', Account);

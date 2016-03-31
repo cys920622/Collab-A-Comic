@@ -9,6 +9,7 @@ var passport = require('passport');
 var expressSession = require('express-session');
 var LocalStrategy = require('passport-local').Strategy;
 var multer = require('multer');
+var flash = require('express-flash');
 
 var routes = require('./routes/index.ts');
 var users = require('./routes/users.ts');
@@ -30,6 +31,7 @@ app.use(cookieParser('secret'));
 // TODO: express-session not incl.
 
 app.use(expressSession({secret: 'mySecretKey'}));
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));

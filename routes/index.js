@@ -421,6 +421,17 @@ router.post('/user/:username/edit', isLoggedIn, function (req, res) {
         res.redirect('/user/' + req.user.username);
     });
 });
+// DELETE profile
+router.post('/user/:username/delete', isLoggedIn, function (req, res) {
+    Account.find({ username: req.params.username }).remove(function (err) {
+        if (err) {
+            console.log("Couldn't delete profile for user: " + req.params.username);
+        }
+        res.render('index', {
+            title: "Collab-a-Comic!",
+            message: "The user " + req.params.username + " was deleted." });
+    });
+});
 /* POST new profile picture to profile */
 router.post('/profile', isLoggedIn, multer({ dest: './public/uploads/profilepictures/' }).single('upl'), function (req, res) {
     //var p = new Profile({

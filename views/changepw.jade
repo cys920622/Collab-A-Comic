@@ -1,0 +1,37 @@
+//
+   Created by danielchoi on 2016-03-31.
+
+link(href='/css/homepage.css', rel='stylesheet')
+link(rel='stylesheet', href='/stylesheets/style.css')
+
+include navbar
+
+style.
+    .elt {
+        float: left;
+        padding-right: 50px;
+    }
+    ul.list-group {
+        width: 300px;
+        max-height: 250px;
+        overflow-y: scroll;
+    }
+    .panel.panel-default {
+        width: 300px;
+    }
+
+body
+    .elt
+        form(method='POST')
+            legend Reset Password
+            .form-group
+                label(for='password') New Password
+                input.form-control(type='password', name='password', value='', placeholder='New password', autofocus=true)
+            .form-group
+                label(for='confirm') Confirm Password
+                input.form-control(type='password', name='confirm', value='', placeholder='Confirm password')
+            .form-group
+                button.btn.btn-primary(type='submit') Update Password
+        p
+            a(href='.')
+                button.btn.btn-default(type="button") Cancel

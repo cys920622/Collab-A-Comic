@@ -298,6 +298,8 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
   console.log("comment object: " + comment);
   var content = req.body.content;
   console.log("comment content: "+content);
+  var comicid = req.body.comicid;
+  console.log("comicid: " + comicid);
   //var splitcomment = comment.split(",");
   ////console.log("splitcomment: "+splitcomment);
   //var rightelem = splitcomment[5];
@@ -353,7 +355,9 @@ router.get('/comment/:commentid/edit', isLoggedIn, function(req, res) {
   //console.log("comment body: " + commentBody);
   var commentParams = req.params.commentid;
   console.log("comment params: " + commentParams);
-  var commentContent = req.params.commentid
+  var commentContent = req.params.commentid;
+  var comicid = req.body.comicid;
+  console.log("comicid from editing: " + comicid);
   //Comment.findById(comment, function (err, doc) {
   //  if (err) {
   //    console.log("Cannot find comment");
@@ -368,9 +372,11 @@ router.get('/comment/:commentid/edit', isLoggedIn, function(req, res) {
         user: req.user,
         commentid: commentParams,
         content: doc.content,
+        comicid: doc.comicid,
         //comment: doc.comment
       });
       console.log("doc.content: "+doc.content);
+      console.log("doc.comicid: "+doc.comicid);
       //console.log("doc.comment: "+doc.comment);
 
     }});
@@ -402,29 +408,32 @@ router.get('/comment/:commentid/edit', isLoggedIn, function(req, res) {
 
 // POST comment edits
 router.post('/comment/save', isLoggedIn, function(req, res) {
-  var commentid3 = req.params.commentid;
-  console.log("my commentid2: " + commentid3);
-  var commentid = req.params.ctid;
-  console.log("my comment content: "+commentid);
-  var commentid2 = req.params.comment;
-  console.log("my commentid2 from js: " + commentid2);
-  var commentid4 = req.body.comment;
-  console.log("my commentid4: " +commentid4);
+  //var commentid3 = req.params.commentid;
+  //console.log("my commentid2: " + commentid3);
+  //var commentid = req.params.ctid;
+  //console.log("my comment content: "+commentid);
+  //var commentid2 = req.params.comment;
+  //console.log("my commentid2 from js: " + commentid2);
+  var commentid = req.body.comment;
+  //console.log("my commentid4: " +commentid4);
   var newComment = req.body.newContent;
-  console.log("my newComment from js: " + newComment);
+  //console.log("my newComment from js: " + newComment);
+  var comicid = req.body.comicid;
+  console.log("comicid from js: " + comicid);
   if (req.body.newContent) {
     newComment = req.body.newContent;
   }
   console.log("req.body.content: " + req.body.content);
 
-  Comment.update({_id: commentid4}, {
+  Comment.update({_id: commentid}, {
     $set: {
-      content: newComment
+      content: newComment,
+      created: Date.now()
     }
   }, function (err) {
     if (err)
     console.log("something wrong with editing comment");
-    res.redirect(req.get('referer'));
+    res.redirect('/comic/'+ comicid);
   }
   )
   //Comment.findById(commentid, function(err, doc) {

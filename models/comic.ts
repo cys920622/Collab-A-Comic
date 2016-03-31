@@ -9,7 +9,8 @@ var Comic = new Schema({
     filename: String,
     imgarray: [{
         author: String,
-        panelloc: String
+        panelloc: String,
+        uploaded: Date
     }],
     path: String,
     subs: [{
@@ -19,6 +20,7 @@ var Comic = new Schema({
     commentarray: [{
         commenter: String,
         newComment: String
-    }]
+    }],
+    uploaded: Date
 });
 module.exports = mongoose.model('Comic', Comic);

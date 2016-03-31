@@ -41,6 +41,8 @@ body
                 img(src=panel.panelloc, width='400')
                 p.
                     By #[a(href=authorlink) #{author}]
+
+                h8 Uploaded on #{panel.uploaded}
                 if (author == viewerName)
 
                     form(method="post", action='/comic/' + comicid + '/remove/')

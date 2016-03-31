@@ -3,8 +3,8 @@
  */
 // Passport tutorial: http://bit.ly/1TNXvgG
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
+//var bcrypt = require('bcrypt-nodejs');
+//var crypto = require('crypto');
 var Comic = require('./comic.ts');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');

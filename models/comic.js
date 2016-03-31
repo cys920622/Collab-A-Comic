@@ -20,8 +20,7 @@ var Comic = new Schema({
     commentarray: [{
             commenter: String,
             newComment: String
-        }],
-    uploaded: Date
+        }]
 });
 module.exports = mongoose.model('Comic', Comic);
 //# sourceMappingURL=comic.js.map

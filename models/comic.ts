@@ -21,6 +21,5 @@ var Comic = new Schema({
         commenter: String,
         newComment: String
     }],
-    uploaded: Date
 });
 module.exports = mongoose.model('Comic', Comic);

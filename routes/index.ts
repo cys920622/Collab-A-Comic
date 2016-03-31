@@ -368,7 +368,8 @@ router.post('/newcomic', isLoggedIn, multer({ dest: './public/uploads/panels/'})
     filename: req.file.filename,
     imgarray: [{
       author: req.user.username,
-      panelloc: '/uploads/panels/'+req.file.filename
+      panelloc: '/uploads/panels/'+req.file.filename,
+      uploaded: Date.now()
     }],
     path: req.file.path,
     subs: [{

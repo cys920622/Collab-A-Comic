@@ -309,7 +309,6 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
   //var jsond = JSON.parse(JSON.stringify(comment));
   //console.log("jsond: " + jsond._id);
   //console.log("jsond: " + jsond.commenter);
-
   //console.log("The comment I am trying to delete with lower c: " + comment);
   //console.log("Comment with cap C: " + Comment);
   //var key = "_id";
@@ -317,7 +316,6 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
   ////var ObjectId = Comment.ObjectId;
   ////var commentid = new ObjectId(req.params.commentid);
   ////console.log("please print my id: " + value.$oid);
-
   //console.log("comment content:" + comment.content.toObject());
   //var jsond = JSON.parse(comment);
   //var _id = jsond['_id'];
@@ -327,12 +325,9 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
   //console.log("id again: " + jsond.id);
   //console.log("commenter of the comment i'm trying to delete: " + jsond.commenter);
   //Comment.findOne({ _id: comment.id}, function(err,doc) {
-  //
   //  var comment = doc.toObject();
   //  delete comment.element;
-  //
   //  console.log( comment );
-  //
   //});
 
   //var deleteme = Comment.findOne({_id: comment});
@@ -346,6 +341,37 @@ router.post('/comment/remove/', isLoggedIn, function(req, res) {
     //  };
   res.redirect(req.get('referer'));
 });
+
+// GET comment editing page
+router.get('/comic/:comicid/comment/:username/edit', isLoggedIn, function(req, res) {
+  res.render('editcomment', {
+    user: req.user
+  })
+  //var comment = req.body.comment;
+  //console.log("my comment: "+comment);
+});
+
+
+// POST comment edits
+router.post('/comic/:comicid/comment/:commentid/edit', isLoggedIn, function(req, res) {
+var commentid = req.params.commentid;
+  console.log("my comment content: "+commentid);
+  Comment.findById(commentid, function(err, doc) {
+    if (err) {
+      console.log("Cannot find comment");
+    } else {
+      var comment = doc;
+      console.log("I've found my comment?");
+      res.render('comment', {
+        commenterName: doc.commenter,
+        editorName: req.user.username,
+        content: doc.content,
+        created: doc.created,
+        comid: req.params.commentid
+    });
+  }});
+});
+
 
 
 // GET profile editing page
